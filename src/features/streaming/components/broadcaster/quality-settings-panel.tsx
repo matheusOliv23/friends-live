@@ -1,7 +1,8 @@
 "use client";
 
-import { Settings2 } from "lucide-react";
+import { Settings2, Volume2, VolumeX } from "lucide-react";
 import { Panel } from "@/components/panel";
+import { Button } from "@/components/ui/button";
 import { OptionGroup } from "@/features/streaming/components/broadcaster/option-group";
 import {
   CONTENT_HINT_OPTIONS,
@@ -36,6 +37,37 @@ export function QualitySettingsPanel({
       }
     >
       <div className="space-y-5">
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-muted-foreground">
+            Áudio da transmissão
+          </p>
+          <Button
+            type="button"
+            variant={quality.includeDisplayAudio ? "secondary" : "outline"}
+            size="sm"
+            className="w-full justify-start"
+            disabled={locked}
+            aria-pressed={quality.includeDisplayAudio}
+            onClick={() =>
+              onChange({
+                includeDisplayAudio: !quality.includeDisplayAudio,
+              })
+            }
+          >
+            {quality.includeDisplayAudio ? (
+              <Volume2 data-icon="inline-start" />
+            ) : (
+              <VolumeX data-icon="inline-start" />
+            )}
+            {quality.includeDisplayAudio
+              ? "Áudio da aba ligado"
+              : "Só vídeo (recomendado com Discord)"}
+          </Button>
+          <p className="text-xs text-muted-foreground">
+            Com Discord, deixe desligado e usem o chat de voz. Se ligar, compartilhe
+            só a aba do jogo e marque “Compartilhar áudio” — nunca a tela inteira.
+          </p>
+        </div>
         <OptionGroup
           label="Resolução"
           value={quality.resolution}

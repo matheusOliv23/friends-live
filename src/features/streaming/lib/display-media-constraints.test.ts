@@ -15,25 +15,36 @@ const quality: StreamQualitySettings = {
   resolution: "1080p",
   frameRate: 60,
   contentHint: "motion",
+  includeDisplayAudio: true,
 };
 
 describe("buildDisplayMediaConstraintLadder", () => {
-  it("prioriza áudio e termina com fallback mínimo sem áudio", () => {
+  it("exclui áudio do sistema e termina com fallback sem áudio", () => {
     const ladder = buildDisplayMediaConstraintLadder(quality);
 
-    expect(ladder[0]).toEqual({
+    expect(ladder[0]).toMatchObject({
       video: {
         width: { ideal: 1920 },
         height: { ideal: 1080 },
         frameRate: { ideal: 60, max: 60 },
       },
-      audio: true,
-      systemAudio: "include",
+      systemAudio: "exclude",
+    });
+    expect(ladder[0]?.audio).toEqual({
+      suppressLocalAudioPlayback: true,
     });
     expect(ladder.at(-1)).toEqual({ video: true, audio: false });
-    expect(ladder.some((step) => step.audio === true)).toBe(true);
+    expect(ladder.some((step) => step.audio !== false)).toBe(true);
     expect(ladder.some((step) => step.audio === false)).toBe(true);
-    expect(ladder.length).toBeGreaterThan(4);
+  });
+
+  it("não pede áudio quando includeDisplayAudio está desligado", () => {
+    const ladder = buildDisplayMediaConstraintLadder({
+      ...quality,
+      includeDisplayAudio: false,
+    });
+
+    expect(ladder.every((step) => step.audio === false)).toBe(true);
   });
 });
 

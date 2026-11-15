@@ -30,6 +30,11 @@ function buildVideoConstraints(
   };
 }
 
+/**
+ * Áudio só da superfície compartilhada (aba/janela).
+ * `systemAudio: "exclude"` evita capturar Discord e o restante do sistema —
+ * isso era a causa do eco da própria voz na live.
+ */
 function withDisplayAudio(
   options: DisplayMediaStreamOptions,
   includeAudio: boolean,
@@ -38,17 +43,20 @@ function withDisplayAudio(
     return { ...options, audio: false };
   }
 
-  const extras: DisplayAudioExtras = { systemAudio: "include" };
+  const extras: DisplayAudioExtras = { systemAudio: "exclude" };
   return {
     ...options,
     ...extras,
-    audio: true,
+    audio: {
+      // Evita tocar o áudio da aba duas vezes na máquina do anfitrião.
+      suppressLocalAudioPlayback: true,
+    } as MediaTrackConstraints,
   };
 }
 
 /**
- * Escada de constraints: tenta a qualidade pedida (com áudio) e degrada
- * resolução/FPS; depois repete sem áudio até um pedido mínimo.
+ * Escada de constraints: qualidade pedida → fallbacks.
+ * Se `includeDisplayAudio` estiver off, nem tenta pedir áudio.
  */
 export function buildDisplayMediaConstraintLadder(
   quality: StreamQualitySettings,
@@ -75,10 +83,14 @@ export function buildDisplayMediaConstraintLadder(
   videoSteps.push({ video: true });
 
   const ladder: DisplayMediaStreamOptions[] = [];
+  const wantAudio = quality.includeDisplayAudio;
 
-  for (const step of videoSteps) {
-    ladder.push(withDisplayAudio(step, true));
+  if (wantAudio) {
+    for (const step of videoSteps) {
+      ladder.push(withDisplayAudio(step, true));
+    }
   }
+
   for (const step of videoSteps) {
     ladder.push(withDisplayAudio(step, false));
   }

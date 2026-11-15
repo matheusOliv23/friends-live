@@ -12,6 +12,7 @@ const quality: StreamQualitySettings = {
   resolution: "1080p",
   frameRate: 60,
   contentHint: "motion",
+  includeDisplayAudio: false,
 };
 
 afterEach(() => {

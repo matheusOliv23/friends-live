@@ -16,6 +16,11 @@ export interface StreamQualitySettings {
   resolution: StreamResolution;
   frameRate: StreamFrameRate;
   contentHint: StreamContentHint;
+  /**
+   * Áudio da aba/janela compartilhada (não é microfone).
+   * Desligado por padrão para evitar eco com Discord/voice chat.
+   */
+  includeDisplayAudio: boolean;
 }
 
 export type ConnectionQuality = "unknown" | "good" | "fair" | "poor";
