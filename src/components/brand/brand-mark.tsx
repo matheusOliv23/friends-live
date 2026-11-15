@@ -28,6 +28,12 @@ export function BrandMark({ className }: BrandMarkProps) {
         d="M10 22V10h2.4l5.2 8.2V10H22v12h-2.4L14.4 13.8V22H10Z"
         className="fill-primary"
       />
+      <circle
+        cx="23.5"
+        cy="8.5"
+        r="3.4"
+        className="animate-mark-pulse fill-live/35"
+      />
       <circle cx="23.5" cy="8.5" r="2.25" className="fill-live" />
     </svg>
   );

@@ -44,15 +44,28 @@ export function CreateRoomButton({
         size="lg"
         onClick={handleCreate}
         disabled={isPending}
-        className={cn("h-11 gap-2 px-5 text-sm", fullWidth && "w-full", className)}
+        className={cn(
+          "relative h-11 gap-2 overflow-hidden px-5 text-sm transition-transform duration-300 hover:-translate-y-0.5",
+          fullWidth && "w-full",
+          className,
+        )}
       >
+        <span
+          aria-hidden
+          className="animate-shimmer pointer-events-none absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent opacity-0 transition-opacity duration-300 group-hover/button:opacity-100"
+        />
         {isPending ? (
           <LoaderCircle data-icon="inline-start" className="animate-spin" />
         ) : (
           <MonitorUp data-icon="inline-start" />
         )}
         {isPending ? "Criando sala…" : "Iniciar transmissão"}
-        {!isPending && <ArrowRight data-icon="inline-end" />}
+        {!isPending && (
+          <ArrowRight
+            data-icon="inline-end"
+            className="transition-transform duration-300 group-hover/button:translate-x-0.5"
+          />
+        )}
       </Button>
       {error && (
         <p role="alert" className="max-w-sm text-center text-xs text-destructive">

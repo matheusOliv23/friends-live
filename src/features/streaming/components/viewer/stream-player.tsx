@@ -39,7 +39,7 @@ export function StreamPlayer({
     !hasAudio || !streamKey || unmutedStreamKey !== streamKey;
 
   return (
-    <PlayerFrame ref={ref}>
+    <PlayerFrame ref={ref} live={status === "live" && !!stream}>
       {status === "live" ? (
         <LiveViewerContent
           stream={stream}

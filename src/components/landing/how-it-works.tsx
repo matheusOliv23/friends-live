@@ -32,7 +32,7 @@ export function HowItWorks() {
     >
       <h2
         id="how-it-works-title"
-        className="text-center text-xs font-medium tracking-widest text-muted-foreground uppercase"
+        className="animate-rise text-center text-xs font-medium tracking-widest text-muted-foreground uppercase"
       >
         Como funciona
       </h2>
@@ -40,13 +40,16 @@ export function HowItWorks() {
         {STEPS.map((step, index) => (
           <li
             key={step.title}
-            className="group rounded-xl border bg-surface p-5 transition-colors hover:border-primary/40"
+            className={`animate-rise group rounded-xl border bg-surface/80 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:bg-surface hover:shadow-[0_20px_40px_-28px_rgba(139,92,246,0.55)] stagger-${index + 1}`}
           >
             <div className="flex items-center justify-between">
-              <span className="flex size-9 items-center justify-center rounded-lg bg-surface-raised text-primary ring-1 ring-border transition-colors group-hover:ring-primary/40">
-                <step.icon className="size-4" aria-hidden />
+              <span className="flex size-9 items-center justify-center rounded-lg bg-surface-raised text-primary ring-1 ring-border transition-all duration-300 group-hover:scale-105 group-hover:ring-primary/40">
+                <step.icon
+                  className="size-4 transition-transform duration-300 group-hover:-rotate-6"
+                  aria-hidden
+                />
               </span>
-              <span className="font-mono text-xs text-muted-foreground">
+              <span className="font-mono text-xs text-muted-foreground transition-colors group-hover:text-primary">
                 0{index + 1}
               </span>
             </div>

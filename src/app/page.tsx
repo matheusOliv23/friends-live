@@ -14,9 +14,9 @@ export default function HomePage() {
       </SiteHeader>
       <main className="flex flex-1 flex-col">
         <Hero />
-        <HowItWorks />
+        {/* <HowItWorks /> */}
       </main>
-      <footer className="border-t py-6 text-center text-xs text-muted-foreground">
+      <footer className="animate-rise border-t py-6 text-center text-xs text-muted-foreground">
         Nexus Stream — transmissão privada de tela.
       </footer>
     </>
