@@ -1,14 +1,16 @@
 -- CreateTable
 CREATE TABLE "Room" (
-    "id" TEXT NOT NULL PRIMARY KEY,
+    "id" TEXT NOT NULL,
     "status" TEXT NOT NULL,
     "broadcasterId" TEXT NOT NULL,
     "hostTokenHash" TEXT NOT NULL,
     "accessTokenHash" TEXT,
     "mediaSessionId" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "liveAt" DATETIME,
-    "endedAt" DATETIME
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "liveAt" TIMESTAMP(3),
+    "endedAt" TIMESTAMP(3),
+
+    CONSTRAINT "Room_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex

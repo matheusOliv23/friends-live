@@ -1,8 +1,4 @@
-// Nexus Stream — modelo de salas.
-// SQLite agora (sem serviço externo). Para PostgreSQL:
-// 1. provider = "postgresql"
-// 2. DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DB
-// 3. npx prisma migrate dev
+// Nexus Stream — modelo de salas (PostgreSQL / Neon).
 
 generator client {
   provider = "prisma-client"
@@ -10,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 model Room {
@@ -20,7 +16,7 @@ model Room {
   hostTokenHash   String
   /// Reserva para proteção futura do link do espectador (não usado nesta etapa).
   accessTokenHash String?
-  /// Reserva para sessão de mídia (LiveKit/WebRTC) — ainda não populado.
+  /// Reserva para sessão de mídia (LiveKit/WebRTC).
   mediaSessionId  String?
   createdAt       DateTime  @default(now())
   liveAt          DateTime?

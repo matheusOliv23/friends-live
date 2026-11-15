@@ -1,7 +1,8 @@
 import "dotenv/config";
 
-if (!process.env.DATABASE_URL) {
-  process.env.DATABASE_URL = "file:./dev.db";
+// Testes unitários não precisam de Postgres real; só evitam file: legado.
+if (process.env.DATABASE_URL?.startsWith("file:")) {
+  delete process.env.DATABASE_URL;
 }
 
 if (typeof MediaStream === "undefined") {

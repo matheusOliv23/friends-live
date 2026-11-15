@@ -5,11 +5,7 @@ const COOKIE_PREFIX = "ns_host_";
 const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24;
 
 function getCookieSecret(): string {
-  return (
-    process.env.HOST_COOKIE_SECRET ??
-    process.env.DATABASE_URL ??
-    "nexus-stream-dev-secret"
-  );
+  return process.env.HOST_COOKIE_SECRET ?? "nexus-stream-dev-secret";
 }
 
 /**
