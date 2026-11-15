@@ -18,7 +18,7 @@ export interface StreamQualitySettings {
   contentHint: StreamContentHint;
   /**
    * Áudio da aba/janela compartilhada (não é microfone).
-   * Desligado por padrão para evitar eco com Discord/voice chat.
+   * Ligado por padrão; desligue se estiver no Discord para evitar eco.
    */
   includeDisplayAudio: boolean;
 }

@@ -48,8 +48,8 @@ export const DEFAULT_QUALITY_SETTINGS: StreamQualitySettings = {
   resolution: "1080p",
   frameRate: 60,
   contentHint: "motion",
-  // Voz fica no Discord; áudio da live só sob demanda (aba do jogo).
-  includeDisplayAudio: false,
+  // Áudio da aba ligado por padrão; use Discord sem áudio da tela inteira.
+  includeDisplayAudio: true,
 };
 
 export function formatDetectedResolution(

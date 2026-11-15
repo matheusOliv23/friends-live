@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { LoaderCircle, Sparkles, Volume2, WifiOff } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,17 @@ type StreamPlayerProps = Pick<
   | "mediaError"
 >;
 
+interface AudioSession {
+  streamKey: string | null;
+  userMuted: boolean;
+  autoplayBlocked: boolean;
+}
+
+const OPEN_AUDIO: Omit<AudioSession, "streamKey"> = {
+  userMuted: false,
+  autoplayBlocked: false,
+};
+
 export function StreamPlayer({
   status,
   stream,
@@ -34,9 +45,33 @@ export function StreamPlayer({
     useFullscreen<HTMLDivElement>();
   const hasAudio = streamHasLiveAudio(stream);
   const streamKey = stream?.id ?? null;
-  const [unmutedStreamKey, setUnmutedStreamKey] = useState<string | null>(null);
+  const [audioSession, setAudioSession] = useState<AudioSession>({
+    streamKey: null,
+    ...OPEN_AUDIO,
+  });
+
+  const activeSession =
+    audioSession.streamKey === streamKey
+      ? audioSession
+      : { streamKey, ...OPEN_AUDIO };
+
+  // Som ligado por padrão; só muda se o browser bloquear autoplay ou o usuário silenciar.
   const muted =
-    !hasAudio || !streamKey || unmutedStreamKey !== streamKey;
+    !hasAudio || activeSession.userMuted || activeSession.autoplayBlocked;
+
+  const openAudio = useCallback(() => {
+    if (!streamKey) return;
+    setAudioSession({ streamKey, ...OPEN_AUDIO });
+  }, [streamKey]);
+
+  const handleAutoplayBlocked = useCallback(() => {
+    if (!streamKey) return;
+    setAudioSession({
+      streamKey,
+      userMuted: false,
+      autoplayBlocked: true,
+    });
+  }, [streamKey]);
 
   return (
     <PlayerFrame ref={ref} live={status === "live" && !!stream}>
@@ -47,9 +82,8 @@ export function StreamPlayer({
           hasAudio={hasAudio}
           mediaConnectionStatus={mediaConnectionStatus}
           mediaError={mediaError}
-          onUnmute={() => {
-            if (streamKey) setUnmutedStreamKey(streamKey);
-          }}
+          onAutoplayBlocked={handleAutoplayBlocked}
+          onUnmute={openAudio}
         />
       ) : (
         <PlayerStateOverlay status={status} />
@@ -64,10 +98,16 @@ export function StreamPlayer({
         hasAudio={hasAudio}
         muted={muted}
         onToggleMute={() => {
-          if (!streamKey || !hasAudio) return;
-          setUnmutedStreamKey((current) =>
-            current === streamKey ? null : streamKey,
-          );
+          if (!hasAudio || !streamKey) return;
+          if (muted) {
+            openAudio();
+            return;
+          }
+          setAudioSession({
+            streamKey,
+            userMuted: true,
+            autoplayBlocked: false,
+          });
         }}
       />
     </PlayerFrame>
@@ -80,6 +120,7 @@ function LiveViewerContent({
   hasAudio,
   mediaConnectionStatus,
   mediaError,
+  onAutoplayBlocked,
   onUnmute,
 }: {
   stream: MediaStream | null;
@@ -87,6 +128,7 @@ function LiveViewerContent({
   hasAudio: boolean;
   mediaConnectionStatus: ViewerSession["mediaConnectionStatus"];
   mediaError: string | null;
+  onAutoplayBlocked: () => void;
   onUnmute: () => void;
 }) {
   if (stream) {
@@ -96,6 +138,7 @@ function LiveViewerContent({
           stream={stream}
           muted={muted}
           className="absolute inset-0"
+          onAutoplayBlocked={onAutoplayBlocked}
         />
         {hasAudio && muted ? (
           <div className="absolute inset-x-0 top-1/2 z-10 flex -translate-y-1/2 justify-center px-4">

@@ -6,12 +6,14 @@ import { cn } from "@/lib/utils";
 interface MediaVideoProps
   extends Omit<ComponentProps<"video">, "src" | "children"> {
   stream: MediaStream | null;
+  onAutoplayBlocked?: () => void;
 }
 
 export function MediaVideo({
   stream,
   className,
   muted,
+  onAutoplayBlocked,
   ...props
 }: MediaVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -21,24 +23,34 @@ export function MediaVideo({
     if (!video) return;
 
     video.srcObject = stream;
-    if (stream) {
-      void video.play().catch(() => {
-        // autoplay pode ser bloqueado; muted+playsInline costuma bastar.
-      });
+    if (!stream) {
+      return () => {
+        video.srcObject = null;
+      };
     }
+
+    void video.play().catch(() => {
+      if (!video.muted) {
+        onAutoplayBlocked?.();
+      }
+    });
 
     return () => {
       video.srcObject = null;
     };
-  }, [stream]);
+  }, [stream, onAutoplayBlocked]);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !stream) return;
+
+    video.muted = Boolean(muted);
     void video.play().catch(() => {
-      // Após gesto de unmute o browser costuma liberar a reprodução.
+      if (!video.muted) {
+        onAutoplayBlocked?.();
+      }
     });
-  }, [muted, stream]);
+  }, [muted, stream, onAutoplayBlocked]);
 
   return (
     <video

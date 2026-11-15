@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Hero } from "@/components/landing/hero";
-import { HowItWorks } from "@/components/landing/how-it-works";
 import { SiteHeader } from "@/components/layout/site-header";
 import { buttonVariants } from "@/components/ui/button";
 
@@ -14,7 +13,6 @@ export default function HomePage() {
       </SiteHeader>
       <main className="flex flex-1 flex-col">
         <Hero />
-        {/* <HowItWorks /> */}
       </main>
       <footer className="animate-rise border-t py-6 text-center text-xs text-muted-foreground">
         Nexus Stream — transmissão privada de tela.

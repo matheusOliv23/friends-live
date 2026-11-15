@@ -61,11 +61,11 @@ export function QualitySettingsPanel({
             )}
             {quality.includeDisplayAudio
               ? "Áudio da aba ligado"
-              : "Só vídeo (recomendado com Discord)"}
+              : "Só vídeo"}
           </Button>
           <p className="text-xs text-muted-foreground">
-            Com Discord, deixe desligado e usem o chat de voz. Se ligar, compartilhe
-            só a aba do jogo e marque “Compartilhar áudio” — nunca a tela inteira.
+            Compartilhe a aba do jogo e marque “Compartilhar áudio”. Com Discord no
+            chat de voz, desligue aqui ou evite tela inteira para não gerar eco.
           </p>
         </div>
         <OptionGroup
