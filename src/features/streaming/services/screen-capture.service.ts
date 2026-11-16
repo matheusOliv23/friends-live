@@ -151,6 +151,9 @@ export class ScreenCaptureService {
   private async requestDisplayMedia(
     quality: StreamQualitySettings,
   ): Promise<MediaStream> {
+    const desktopStream = await tryDesktopEnhancedCapture(quality);
+    if (desktopStream) return desktopStream;
+
     const ladder = buildDisplayMediaConstraintLadder(quality);
     let lastError: unknown;
 
@@ -260,4 +263,183 @@ function stopMediaStream(stream: MediaStream): void {
   for (const track of stream.getTracks()) {
     track.stop();
   }
+}
+
+type DesktopAudioPrefs = {
+  audioMode:
+    | "app-loopback"
+    | "window-only"
+    | "system-loopback"
+    | "virtual-device";
+  selectedDeviceId: string;
+};
+
+type NexusDesktopBridge = {
+  getAudioPrefs?: () => Promise<DesktopAudioPrefs>;
+  stopAppAudio?: () => Promise<void>;
+  onAppAudioChunk?: (handler: (chunk: Uint8Array) => void) => () => void;
+  getAppAudioFormat?: () => Promise<{
+    sampleRate: number;
+    channels: number;
+    bitDepth: 16;
+  }>;
+};
+
+/**
+ * No app Electron: vídeo via desktopCapturer + áudio WASAPI por app
+ * (sem Discord), loopback do sistema, ou dispositivo virtual.
+ */
+async function tryDesktopEnhancedCapture(
+  quality: StreamQualitySettings,
+): Promise<MediaStream | null> {
+  const bridge = (
+    globalThis as typeof globalThis & { nexusDesktop?: NexusDesktopBridge }
+  ).nexusDesktop;
+  if (!bridge?.getAudioPrefs) return null;
+
+  const prefs = await bridge.getAudioPrefs();
+  const wantDisplayAudio =
+    prefs.audioMode === "system-loopback"
+      ? true
+      : quality.includeDisplayAudio &&
+        prefs.audioMode !== "virtual-device" &&
+        prefs.audioMode !== "app-loopback" &&
+        prefs.audioMode !== "window-only";
+
+  const displayStream = await navigator.mediaDevices.getDisplayMedia({
+    video: true,
+    audio: wantDisplayAudio,
+  });
+
+  if (prefs.audioMode === "app-loopback") {
+    const appTrack = await createAppLoopbackAudioTrack(bridge);
+    if (appTrack) {
+      for (const track of displayStream.getAudioTracks()) {
+        displayStream.removeTrack(track);
+        track.stop();
+      }
+      displayStream.addTrack(appTrack);
+    }
+    return displayStream;
+  }
+
+  if (prefs.audioMode !== "virtual-device" || !prefs.selectedDeviceId) {
+    return displayStream;
+  }
+
+  try {
+    const audioStream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        deviceId: { exact: prefs.selectedDeviceId },
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false,
+      },
+      video: false,
+    });
+    const audioTrack = audioStream.getAudioTracks()[0];
+    if (!audioTrack) return displayStream;
+
+    for (const track of displayStream.getAudioTracks()) {
+      displayStream.removeTrack(track);
+      track.stop();
+    }
+    displayStream.addTrack(audioTrack);
+    return displayStream;
+  } catch {
+    return displayStream;
+  }
+}
+
+type AudioTrackGeneratorCtor = new (init: {
+  kind: "audio";
+}) => MediaStreamTrack & {
+  writable: WritableStream<AudioData>;
+};
+
+type AudioDataCtor = new (init: {
+  format: "s16";
+  sampleRate: number;
+  numberOfFrames: number;
+  numberOfChannels: number;
+  timestamp: number;
+  data: ArrayBufferView;
+}) => AudioData & { close: () => void };
+
+/**
+ * Converte PCM s16le estéreo 48 kHz do main process em MediaStreamTrack.
+ */
+async function createAppLoopbackAudioTrack(
+  bridge: NexusDesktopBridge,
+): Promise<MediaStreamTrack | null> {
+  const TrackGenerator = (
+    globalThis as typeof globalThis & {
+      MediaStreamTrackGenerator?: AudioTrackGeneratorCtor;
+      AudioData?: AudioDataCtor;
+    }
+  ).MediaStreamTrackGenerator;
+  const AudioDataType = (
+    globalThis as typeof globalThis & {
+      AudioData?: AudioDataCtor;
+    }
+  ).AudioData;
+
+  if (!bridge.onAppAudioChunk || !TrackGenerator || !AudioDataType) {
+    return null;
+  }
+
+  const format = (await bridge.getAppAudioFormat?.()) ?? {
+    sampleRate: 48000,
+    channels: 2,
+    bitDepth: 16 as const,
+  };
+
+  const generator = new TrackGenerator({ kind: "audio" });
+  const writer = generator.writable.getWriter();
+  let timestampUs = 0;
+  let closed = false;
+
+  const unsubscribe = bridge.onAppAudioChunk((chunk) => {
+    if (closed || chunk.byteLength < 4) return;
+    const aligned = chunk.byteLength & ~1;
+    const frames = Math.floor(aligned / 2 / format.channels);
+    if (frames <= 0) return;
+
+    const copy = new Int16Array(frames * format.channels);
+    copy.set(
+      new Int16Array(chunk.buffer, chunk.byteOffset, copy.length),
+    );
+
+    try {
+      const audioData = new AudioDataType({
+        format: "s16",
+        sampleRate: format.sampleRate,
+        numberOfFrames: frames,
+        numberOfChannels: format.channels,
+        timestamp: timestampUs,
+        data: copy,
+      });
+      timestampUs += Math.round((frames / format.sampleRate) * 1_000_000);
+      void writer.write(audioData).finally(() => audioData.close());
+    } catch {
+      // drop underrun / closed writer
+    }
+  });
+
+  const stop = () => {
+    if (closed) return;
+    closed = true;
+    unsubscribe();
+    void writer.close().catch(() => undefined);
+    void bridge.stopAppAudio?.();
+  };
+
+  generator.addEventListener("ended", stop, { once: true });
+  const originalStop = generator.stop.bind(generator);
+  generator.stop = () => {
+    stop();
+    originalStop();
+  };
+
+  return generator;
 }

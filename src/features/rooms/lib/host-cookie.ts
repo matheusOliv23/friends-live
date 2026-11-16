@@ -59,29 +59,53 @@ export function readHostTokenFromRequest(
   return null;
 }
 
+type CookieMode = "web" | "desktop";
+
+function cookieSecurity(mode: CookieMode) {
+  const secure = process.env.NODE_ENV === "production";
+  // Desktop em produção (HTTPS): SameSite=None. Em dev local, Bearer é o auth principal.
+  if (mode === "desktop" && secure) {
+    return {
+      sameSite: "none" as const,
+      secure: true,
+    };
+  }
+  return {
+    sameSite: "lax" as const,
+    secure,
+  };
+}
+
 export function attachHostCookie(
   response: NextResponse,
   roomId: string,
   hostToken: string,
+  mode: CookieMode = "web",
 ): void {
+  const security = cookieSecurity(mode);
   response.cookies.set({
     name: hostCookieName(roomId),
     value: sealHostToken(hostToken),
     httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    sameSite: security.sameSite,
+    secure: security.secure,
     path: "/",
     maxAge: COOKIE_MAX_AGE_SECONDS,
   });
 }
 
-export function clearHostCookie(response: NextResponse, roomId: string): void {
+export function clearHostCookie(
+  response: NextResponse,
+  roomId: string,
+  mode: CookieMode = "web",
+): void {
+  const security = cookieSecurity(mode);
   response.cookies.set({
     name: hostCookieName(roomId),
     value: "",
     httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    sameSite: security.sameSite,
+    secure: security.secure,
     path: "/",
     maxAge: 0,
   });

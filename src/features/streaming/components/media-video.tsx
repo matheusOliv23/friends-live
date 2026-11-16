@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 interface MediaVideoProps
   extends Omit<ComponentProps<"video">, "src" | "children"> {
   stream: MediaStream | null;
+  /** 0–1; aplicado no elemento de vídeo do espectador. */
+  volume?: number;
   onAutoplayBlocked?: () => void;
 }
 
@@ -13,6 +15,7 @@ export function MediaVideo({
   stream,
   className,
   muted,
+  volume = 1,
   onAutoplayBlocked,
   ...props
 }: MediaVideoProps) {
@@ -45,12 +48,13 @@ export function MediaVideo({
     if (!video || !stream) return;
 
     video.muted = Boolean(muted);
+    video.volume = Math.min(1, Math.max(0, volume));
     void video.play().catch(() => {
       if (!video.muted) {
         onAutoplayBlocked?.();
       }
     });
-  }, [muted, stream, onAutoplayBlocked]);
+  }, [muted, volume, stream, onAutoplayBlocked]);
 
   return (
     <video

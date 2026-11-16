@@ -12,7 +12,10 @@
     "db:generate": "prisma generate",
     "postinstall": "prisma generate",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "desktop:dev": "npm run dev --prefix apps/desktop",
+    "desktop:build": "npm run build --prefix apps/desktop",
+    "desktop:pack": "npm run pack --prefix apps/desktop"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

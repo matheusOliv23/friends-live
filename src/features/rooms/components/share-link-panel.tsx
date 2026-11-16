@@ -1,10 +1,14 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { Check, Copy, Link2 } from "lucide-react";
+import { Check, Copy, Link2, Monitor } from "lucide-react";
 import { Panel } from "@/components/panel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  requestDesktopHandoff,
+  RoomApiError,
+} from "@/features/rooms/api/client";
 import { getShareableWatchUrl } from "@/features/rooms/lib/paths";
 
 const subscribeNoop = () => () => {};
@@ -12,8 +16,20 @@ const subscribeNoop = () => () => {};
 function useOrigin(): string {
   return useSyncExternalStore(
     subscribeNoop,
-    () => window.location.origin,
-    () => "",
+    () =>
+      process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
+      window.location.origin,
+    () => process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "",
+  );
+}
+
+function isNexusDesktop(): boolean {
+  return Boolean(
+    (
+      globalThis as typeof globalThis & {
+        nexusDesktop?: unknown;
+      }
+    ).nexusDesktop,
   );
 }
 
@@ -25,6 +41,15 @@ export function ShareLinkPanel({ roomId }: ShareLinkPanelProps) {
   const origin = useOrigin();
   const url = getShareableWatchUrl(roomId, origin || undefined);
   const [copied, setCopied] = useState(false);
+  const [desktopBusy, setDesktopBusy] = useState(false);
+  const [desktopError, setDesktopError] = useState<string | null>(null);
+  const [desktopMode, setDesktopMode] = useState<"web" | "desktop" | null>(
+    null,
+  );
+
+  useEffect(() => {
+    setDesktopMode(isNexusDesktop() ? "desktop" : "web");
+  }, []);
 
   async function handleCopy() {
     try {
@@ -35,6 +60,23 @@ export function ShareLinkPanel({ roomId }: ShareLinkPanelProps) {
         "share-link-input",
       ) as HTMLInputElement | null;
       input?.select();
+    }
+  }
+
+  async function handleOpenDesktop() {
+    setDesktopBusy(true);
+    setDesktopError(null);
+    try {
+      const { deepLink } = await requestDesktopHandoff(roomId);
+      window.location.href = deepLink;
+    } catch (error) {
+      setDesktopError(
+        error instanceof RoomApiError
+          ? error.message
+          : "Não foi possível abrir o app desktop.",
+      );
+    } finally {
+      setDesktopBusy(false);
     }
   }
 
@@ -78,6 +120,50 @@ export function ShareLinkPanel({ roomId }: ShareLinkPanelProps) {
           )}
         </Button>
       </div>
+      {desktopMode === "web" ? (
+        <div className="mt-3 flex flex-col gap-2">
+          <Button
+            type="button"
+            variant="secondary"
+            size="lg"
+            className="h-10 w-full sm:w-auto"
+            disabled={desktopBusy}
+            onClick={() => void handleOpenDesktop()}
+          >
+            <Monitor data-icon="inline-start" />
+            {desktopBusy ? "Abrindo app…" : "Abrir no app Windows"}
+          </Button>
+          {desktopError ? (
+            <p className="text-xs text-destructive" role="alert">
+              {desktopError}
+            </p>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              Continua a mesma sala; espectadores ficam no link /watch.
+            </p>
+          )}
+        </div>
+      ) : null}
+      {desktopMode === "desktop" ? (
+        <div className="mt-3">
+          <Button
+            type="button"
+            variant="outline"
+            size="lg"
+            className="h-10 w-full sm:w-auto"
+            onClick={() => {
+              const bridge = (
+                globalThis as typeof globalThis & {
+                  nexusDesktop?: { goHome?: () => Promise<void> };
+                }
+              ).nexusDesktop;
+              void bridge?.goHome?.();
+            }}
+          >
+            Voltar ao launcher
+          </Button>
+        </div>
+      ) : null}
       <p className="mt-3 font-mono text-xs text-muted-foreground">
         ID: {roomId}
       </p>

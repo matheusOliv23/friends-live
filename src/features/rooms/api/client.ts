@@ -77,3 +77,16 @@ export async function endRoom(roomId: string): Promise<PublicRoom> {
   const data = await parseJson<{ room: PublicRoom }>(response);
   return data.room;
 }
+
+export async function requestDesktopHandoff(
+  roomId: string,
+): Promise<{ roomId: string; hostToken: string; deepLink: string }> {
+  const response = await fetch(
+    `/api/rooms/${encodeURIComponent(roomId)}/desktop-handoff`,
+    {
+      method: "POST",
+      credentials: "include",
+    },
+  );
+  return parseJson(response);
+}

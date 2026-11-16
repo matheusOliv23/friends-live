@@ -43,6 +43,7 @@ export function ViewerRoom({ roomId }: ViewerRoomProps) {
           connectionQuality={session.connectionQuality}
           mediaConnectionStatus={session.mediaConnectionStatus}
           mediaError={session.mediaError}
+          viewerCount={session.viewerCount}
         />
       </div>
     </div>

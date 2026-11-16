@@ -19,6 +19,8 @@ export interface ViewerSession {
   connectionQuality: ConnectionQuality;
   mediaConnectionStatus: LiveKitConnectionStatus;
   mediaError: string | null;
+  /** Espectadores conectados (exclui o anfitrião). */
+  viewerCount: number;
   isLoading: boolean;
   error: string | null;
   notFound: boolean;
@@ -55,6 +57,7 @@ export function useViewerSession(roomId: string): ViewerSession {
     status: mediaStatus,
     errorMessage: mediaError,
     remoteStream,
+    participantCount,
     connectAsViewer,
     disconnect,
   } = useLiveKitSession();
@@ -108,6 +111,7 @@ export function useViewerSession(roomId: string): ViewerSession {
       connectionQuality: "unknown",
       mediaConnectionStatus: mediaStatus,
       mediaError,
+      viewerCount: 0,
       isLoading: true,
       error: null,
       notFound: false,
@@ -123,6 +127,7 @@ export function useViewerSession(roomId: string): ViewerSession {
       connectionQuality: "unknown",
       mediaConnectionStatus: mediaStatus,
       mediaError,
+      viewerCount: 0,
       isLoading: false,
       error: roomState.error,
       notFound: true,
@@ -151,6 +156,7 @@ export function useViewerSession(roomId: string): ViewerSession {
     connectionQuality: mapLiveKitQuality(mediaStatus),
     mediaConnectionStatus: mediaStatus,
     mediaError,
+    viewerCount: participantCount,
     isLoading: false,
     error: roomState.error,
     notFound: false,

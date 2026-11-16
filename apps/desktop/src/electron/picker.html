@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; script-src 'unsafe-inline'"
+    />
+    <title>Escolher o que transmitir</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: "Segoe UI", system-ui, sans-serif;
+      }
+      body {
+        margin: 0;
+        background: #09090b;
+        color: #fafafa;
+      }
+      header {
+        padding: 16px 20px 8px;
+      }
+      h1 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 650;
+      }
+      p {
+        margin: 6px 0 0;
+        color: #a1a1aa;
+        font-size: 13px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 12px;
+        padding: 12px 20px 20px;
+      }
+      button.source {
+        appearance: none;
+        border: 1px solid #27272a;
+        background: #18181b;
+        border-radius: 12px;
+        padding: 10px;
+        color: inherit;
+        text-align: left;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      button.source:hover,
+      button.source:focus-visible {
+        border-color: #a78bfa;
+        outline: none;
+        background: #1f1f23;
+      }
+      .thumb {
+        width: 100%;
+        aspect-ratio: 16 / 10;
+        object-fit: cover;
+        border-radius: 8px;
+        background: #27272a;
+      }
+      .thumb.placeholder {
+        display: grid;
+        place-items: center;
+        color: #71717a;
+        font-size: 12px;
+      }
+      .name {
+        font-size: 12px;
+        line-height: 1.35;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+      }
+      footer {
+        position: sticky;
+        bottom: 0;
+        padding: 12px 20px 16px;
+        background: linear-gradient(transparent, #09090b 30%);
+        display: flex;
+        justify-content: flex-end;
+      }
+      button.cancel {
+        appearance: none;
+        border: 1px solid #3f3f46;
+        background: transparent;
+        color: #e4e4e7;
+        border-radius: 10px;
+        height: 36px;
+        padding: 0 14px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>O que você quer transmitir?</h1>
+      <p>Escolha uma tela ou janela.</p>
+    </header>
+    <div class="grid" id="grid"></div>
+    <footer>
+      <button type="button" class="cancel" id="cancel">Cancelar</button>
+    </footer>
+    <script>
+      (async () => {
+        const grid = document.getElementById("grid");
+        const cancel = document.getElementById("cancel");
+        cancel.addEventListener("click", () => window.nexusPicker.cancel());
+
+        const sources = await window.nexusPicker.getSources();
+        for (const source of sources) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "source";
+          btn.title = source.name;
+
+          if (source.thumbnail) {
+            const img = document.createElement("img");
+            img.className = "thumb";
+            img.alt = "";
+            img.src = source.thumbnail;
+            btn.appendChild(img);
+          } else {
+            const ph = document.createElement("div");
+            ph.className = "thumb placeholder";
+            ph.textContent = source.id.startsWith("screen:") ? "Tela" : "Janela";
+            btn.appendChild(ph);
+          }
+
+          const name = document.createElement("div");
+          name.className = "name";
+          name.textContent = source.name;
+          btn.appendChild(name);
+
+          btn.addEventListener("click", () =>
+            window.nexusPicker.select(source.id),
+          );
+          grid.appendChild(btn);
+        }
+      })();
+    </script>
+  </body>
+</html>

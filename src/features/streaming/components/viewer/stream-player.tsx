@@ -20,17 +20,22 @@ type StreamPlayerProps = Pick<
   | "connectionQuality"
   | "mediaConnectionStatus"
   | "mediaError"
+  | "viewerCount"
 >;
 
 interface AudioSession {
   streamKey: string | null;
   userMuted: boolean;
   autoplayBlocked: boolean;
+  volume: number;
 }
+
+const DEFAULT_VOLUME = 1;
 
 const OPEN_AUDIO: Omit<AudioSession, "streamKey"> = {
   userMuted: false,
   autoplayBlocked: false,
+  volume: DEFAULT_VOLUME,
 };
 
 export function StreamPlayer({
@@ -40,6 +45,7 @@ export function StreamPlayer({
   connectionQuality,
   mediaConnectionStatus,
   mediaError,
+  viewerCount,
 }: StreamPlayerProps) {
   const { ref, isFullscreen, isSupported, toggle } =
     useFullscreen<HTMLDivElement>();
@@ -53,25 +59,45 @@ export function StreamPlayer({
   const activeSession =
     audioSession.streamKey === streamKey
       ? audioSession
-      : { streamKey, ...OPEN_AUDIO };
+      : { streamKey, ...OPEN_AUDIO, volume: audioSession.volume };
 
-  // Som ligado por padrão; só muda se o browser bloquear autoplay ou o usuário silenciar.
   const muted =
     !hasAudio || activeSession.userMuted || activeSession.autoplayBlocked;
+  const volume = activeSession.volume;
 
   const openAudio = useCallback(() => {
     if (!streamKey) return;
-    setAudioSession({ streamKey, ...OPEN_AUDIO });
+    setAudioSession((prev) => ({
+      streamKey,
+      userMuted: false,
+      autoplayBlocked: false,
+      volume: prev.volume > 0 ? prev.volume : DEFAULT_VOLUME,
+    }));
   }, [streamKey]);
 
   const handleAutoplayBlocked = useCallback(() => {
     if (!streamKey) return;
-    setAudioSession({
+    setAudioSession((prev) => ({
       streamKey,
       userMuted: false,
       autoplayBlocked: true,
-    });
+      volume: prev.volume,
+    }));
   }, [streamKey]);
+
+  const handleVolumeChange = useCallback(
+    (next: number) => {
+      if (!streamKey) return;
+      const clamped = Math.min(1, Math.max(0, next));
+      setAudioSession({
+        streamKey,
+        volume: clamped,
+        userMuted: clamped === 0,
+        autoplayBlocked: false,
+      });
+    },
+    [streamKey],
+  );
 
   return (
     <PlayerFrame ref={ref} live={status === "live" && !!stream}>
@@ -79,6 +105,7 @@ export function StreamPlayer({
         <LiveViewerContent
           stream={stream}
           muted={muted}
+          volume={volume}
           hasAudio={hasAudio}
           mediaConnectionStatus={mediaConnectionStatus}
           mediaError={mediaError}
@@ -97,17 +124,21 @@ export function StreamPlayer({
         onToggleFullscreen={toggle}
         hasAudio={hasAudio}
         muted={muted}
+        volume={volume}
+        viewerCount={viewerCount}
+        onVolumeChange={handleVolumeChange}
         onToggleMute={() => {
           if (!hasAudio || !streamKey) return;
           if (muted) {
             openAudio();
             return;
           }
-          setAudioSession({
+          setAudioSession((prev) => ({
             streamKey,
             userMuted: true,
             autoplayBlocked: false,
-          });
+            volume: prev.volume,
+          }));
         }}
       />
     </PlayerFrame>
@@ -117,6 +148,7 @@ export function StreamPlayer({
 function LiveViewerContent({
   stream,
   muted,
+  volume,
   hasAudio,
   mediaConnectionStatus,
   mediaError,
@@ -125,6 +157,7 @@ function LiveViewerContent({
 }: {
   stream: MediaStream | null;
   muted: boolean;
+  volume: number;
   hasAudio: boolean;
   mediaConnectionStatus: ViewerSession["mediaConnectionStatus"];
   mediaError: string | null;
@@ -137,6 +170,7 @@ function LiveViewerContent({
         <MediaVideo
           stream={stream}
           muted={muted}
+          volume={volume}
           className="absolute inset-0"
           onAutoplayBlocked={onAutoplayBlocked}
         />

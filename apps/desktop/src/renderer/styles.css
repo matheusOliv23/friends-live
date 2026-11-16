@@ -1,0 +1,461 @@
+:root {
+  color-scheme: dark;
+  --background: #09090b;
+  --foreground: #fafafa;
+  --surface: #18181b;
+  --muted: #a1a1aa;
+  --primary: #8b5cf6;
+  --live: #ef4444;
+  --border: #27272a;
+  --danger: #f87171;
+  --ring: color-mix(in oklab, var(--primary) 50%, transparent);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+body {
+  min-height: 100vh;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(139, 92, 246, 0.22), transparent 55%),
+    radial-gradient(ellipse 40% 30% at 15% 40%, rgba(239, 68, 68, 0.08), transparent 50%),
+    radial-gradient(ellipse 35% 25% at 85% 30%, rgba(139, 92, 246, 0.12), transparent 50%),
+    var(--background);
+}
+
+.header {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 24px;
+  max-width: 64rem;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--foreground);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: default;
+}
+
+.brand-muted {
+  color: var(--muted);
+}
+
+.brand-mark {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.link-ghost {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--foreground);
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.link-ghost:hover {
+  background: color-mix(in oklab, var(--foreground) 8%, transparent);
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 16px 40px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 40rem;
+  z-index: 1;
+}
+
+.btn {
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  height: 44px;
+  padding: 0 20px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 10px 30px -12px rgba(139, 92, 246, 0.8);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: color-mix(in oklab, var(--primary) 90%, white);
+}
+
+.btn-outline {
+  background: color-mix(in oklab, var(--surface) 70%, transparent);
+  border-color: var(--border);
+  color: var(--foreground);
+  backdrop-filter: blur(8px);
+}
+
+.btn-outline:hover:not(:disabled) {
+  border-color: color-mix(in oklab, var(--primary) 40%, var(--border));
+}
+
+.showcase {
+  position: relative;
+  margin-top: 56px;
+  width: min(48rem, 100%);
+  padding: 0 4px;
+  z-index: 1;
+}
+
+.showcase-glow {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(48px);
+  pointer-events: none;
+}
+
+.showcase-glow-a {
+  top: -24px;
+  left: -16px;
+  width: 112px;
+  height: 112px;
+  background: rgba(139, 92, 246, 0.25);
+}
+
+.showcase-glow-b {
+  right: -8px;
+  bottom: -32px;
+  width: 144px;
+  height: 144px;
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.showcase-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid color-mix(in oklab, var(--primary) 25%, transparent);
+  background: var(--surface);
+  box-shadow: 0 30px 80px -40px rgba(139, 92, 246, 0.55);
+}
+
+.showcase-shimmer {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  z-index: 20;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--primary) 80%, transparent),
+    transparent
+  );
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+.showcase-stage {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #070709;
+}
+
+.showcase-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(139, 92, 246, 0.28), transparent 55%),
+    radial-gradient(ellipse at 80% 70%, rgba(239, 68, 68, 0.16), transparent 50%);
+}
+
+.showcase-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.14;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 42px 42px;
+}
+
+.live-badge {
+  position: relative;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.live-dot {
+  position: relative;
+  width: 10px;
+  height: 10px;
+}
+
+.live-dot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--live);
+  opacity: 0.35;
+  animation: live-ring 1.6s ease-out infinite;
+}
+
+.live-dot::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border-radius: 999px;
+  background: var(--live);
+}
+
+.showcase-bar {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 48px 16px 12px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+}
+
+.showcase-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.showcase-meta .dim {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.showcase-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pill {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.pill-a {
+  width: 32px;
+}
+
+.pill-b {
+  width: 16px;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.pill-box {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.advanced {
+  margin-top: 28px;
+  width: min(32rem, 100%);
+  text-align: left;
+  z-index: 1;
+}
+
+.advanced summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.8rem;
+  list-style: none;
+  text-align: center;
+}
+
+.advanced summary::-webkit-details-marker {
+  display: none;
+}
+
+.advanced[open] summary {
+  margin-bottom: 12px;
+}
+
+.advanced-panel {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--surface) 85%, transparent);
+  padding: 16px;
+  backdrop-filter: blur(8px);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.field:first-child {
+  margin-top: 0;
+}
+
+.field label {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.field input,
+.field select {
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--background);
+  color: var(--foreground);
+  padding: 0 12px;
+}
+
+.field input:focus,
+.field select:focus {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.error {
+  margin-top: 12px;
+  color: var(--danger);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+@keyframes live-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.45;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+@keyframes shimmer {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .cta-row {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  .showcase {
+    margin-top: 40px;
+  }
+
+  .showcase-meta .dim {
+    display: none;
+  }
+}

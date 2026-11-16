@@ -20,6 +20,12 @@
 # production
 /build
 
+# desktop (Electron)
+/apps/desktop/node_modules
+/apps/desktop/dist
+/apps/desktop/dist-electron
+/apps/desktop/release
+
 # misc
 .DS_Store
 *.pem

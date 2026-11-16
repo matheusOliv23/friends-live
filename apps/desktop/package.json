@@ -1,0 +1,93 @@
+{
+  "name": "nexus-stream-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Nexus Stream — cliente Windows só para o anfitrião",
+  "main": "dist-electron/main.js",
+  "author": "Nexus Stream",
+  "scripts": {
+    "dev": "vite",
+    "icon": "node scripts/build-icon.mjs",
+    "build": "npm run icon && vite build && electron-builder --win",
+    "pack": "npm run icon && vite build && electron-builder --win --dir"
+  },
+  "dependencies": {
+    "koffi": "^3.3.8",
+    "livekit-client": "^2.24.1",
+    "loopback-capture": "^4.0.0",
+    "lucide-react": "^1.73.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^5.0.0",
+    "electron": "^37.2.0",
+    "electron-builder": "^26.0.12",
+    "png-to-ico": "^3.0.2",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "sharp": "^0.35.5",
+    "typescript": "^5",
+    "vite": "^7.0.0",
+    "vite-plugin-electron": "^0.29.0",
+    "vite-plugin-electron-renderer": "^0.14.6"
+  },
+  "build": {
+    "appId": "com.nexusstream.desktop",
+    "productName": "Nexus Stream",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "icon": "build/icon.ico",
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "**/*.node",
+      "**/loopback-capture/**",
+      "**/koffi/**",
+      "**/bindings/**"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "artifactName": "${productName}-Setup-${version}-${arch}.${ext}"
+    },
+    "portable": {
+      "artifactName": "${productName}-Portable-${version}-${arch}.${ext}"
+    },
+    "protocols": [
+      {
+        "name": "Nexus Stream",
+        "schemes": [
+          "nexus"
+        ]
+      }
+    ]
+  },
+  "allowScripts": {
+    "koffi@3.3.8": true,
+    "sharp@0.35.5": true
+  }
+}
