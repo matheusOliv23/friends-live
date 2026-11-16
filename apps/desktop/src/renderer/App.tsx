@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { ArrowRight, Eye, LogIn, MonitorUp } from "lucide-react";
+import { ArrowRight, Eye, MonitorUp } from "lucide-react";
 import {
   createRoom,
   DesktopApiError,
@@ -153,8 +153,11 @@ export function App() {
       const { room, hostToken } = await createRoom(siteUrl);
       saveHostToken(room.id, hostToken);
       setRoomIdInput(room.id);
+      // Libera o botão antes de navegar — se o usuário voltar ao launcher, não fica preso.
+      setBusy(false);
       await openHostStudio(room.id, hostToken);
     } catch (err) {
+      setBusy(false);
       setError(
         err instanceof DesktopApiError
           ? err.message
@@ -162,8 +165,6 @@ export function App() {
             ? err.message
             : "Falha ao criar a sala.",
       );
-    } finally {
-      setBusy(false);
     }
   }
 

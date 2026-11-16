@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
 import { LoaderCircle, MonitorOff, MonitorUp } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
+import { HomeLink } from "@/components/home-link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ScreenPreview } from "@/features/streaming/components/screen-preview";
 import { StreamControls } from "@/features/streaming/components/stream-controls";
@@ -43,12 +43,11 @@ export function BroadcastStage({
           title="Transmissão encerrada"
           description="Esta sala foi encerrada. Crie uma nova sala para transmitir novamente."
         >
-          <Link
-            href="/"
+          <HomeLink
             className={buttonVariants({ variant: "outline", size: "lg" })}
           >
             Voltar ao início
-          </Link>
+          </HomeLink>
         </EmptyState>
       </StageShell>
     );

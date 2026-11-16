@@ -34,6 +34,8 @@ export function CreateRoomButton({
           ? err.message
           : "Não foi possível criar a sala. Tente novamente.",
       );
+    } finally {
+      // Sempre limpa o loading — se o usuário voltar pra home, o botão não fica preso.
       setIsPending(false);
     }
   }

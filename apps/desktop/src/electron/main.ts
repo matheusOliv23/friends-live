@@ -207,10 +207,13 @@ ipcMain.handle("nexus:list-sources", async () => listWindowSources());
 ipcMain.handle("nexus:go-home", async () => {
   stopAppAudioCapture();
   if (!mainWindow) return;
+  // Cache-bust pra garantir remount limpo do launcher (sem estado “Criando…”).
   if (isDev) {
-    await mainWindow.loadURL("http://localhost:5173");
+    await mainWindow.loadURL(`http://localhost:5173/?t=${Date.now()}`);
   } else {
-    await mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
+    await mainWindow.loadFile(path.join(__dirname, "../dist/index.html"), {
+      query: { t: String(Date.now()) },
+    });
   }
 });
 

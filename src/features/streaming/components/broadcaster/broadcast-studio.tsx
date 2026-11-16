@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { LoaderCircle, ShieldAlert, Signal } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
+import { HomeLink } from "@/components/home-link";
 import { Panel } from "@/components/panel";
 import { buttonVariants } from "@/components/ui/button";
 import { ConnectionStatusBadge } from "@/features/livekit/components/connection-status-badge";
@@ -55,9 +56,9 @@ export function BroadcastStudio({ roomId }: BroadcastStudioProps) {
         title="Sala não encontrada"
         description={roomState.error}
       >
-        <Link href="/" className={buttonVariants({ variant: "outline", size: "lg" })}>
+        <HomeLink className={buttonVariants({ variant: "outline", size: "lg" })}>
           Voltar ao início
-        </Link>
+        </HomeLink>
       </EmptyState>
     );
   }
