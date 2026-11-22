@@ -60,8 +60,14 @@ function createWindow(): void {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false,
+      // Sem isso, minimizar a janela throttla timers/WebSocket e o LiveKit cai
+      // com "could not establish signal connection".
+      backgroundThrottling: false,
     },
   });
+
+  // Garante o mesmo comportamento se a preferência for reaplicada em runtime.
+  mainWindow.webContents.setBackgroundThrottling(false);
 
   if (isDev) {
     void mainWindow.loadURL("http://localhost:5173");
