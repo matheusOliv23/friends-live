@@ -25,7 +25,7 @@ export function DownloadDesktopButton({
     <a
       href="/api/desktop/download"
       className={cn(
-        buttonVariants({ variant: "outline", size: "lg" }),
+        buttonVariants({ variant: "default", size: "lg" }),
         "h-11 gap-2 px-5 text-sm transition-transform duration-300 hover:-translate-y-0.5",
         className,
       )}

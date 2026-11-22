@@ -43,18 +43,20 @@ export function Hero() {
 
       <div className="animate-rise stagger-4 mt-8 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
         <CreateRoomButton fullWidth className="sm:w-auto" />
-        <Link
-          href="/watch"
-          className={cn(
-            buttonVariants({ variant: "outline", size: "lg" }),
-            ctaClassName,
-            "w-full transition-transform duration-300 hover:-translate-y-0.5 sm:w-auto",
-          )}
-        >
-          <Eye data-icon="inline-start" />
-          Assistir transmissão
-        </Link>
-        <DownloadDesktopButton className="w-full sm:w-auto" />
+        <div className="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row">
+          <Link
+            href="/watch"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "lg" }),
+              ctaClassName,
+              "w-full transition-transform duration-300 hover:-translate-y-0.5 sm:w-auto",
+            )}
+          >
+            <Eye data-icon="inline-start" />
+            Assistir transmissão
+          </Link>
+          <DownloadDesktopButton className="w-full sm:w-auto" />
+        </div>
       </div>
 
       <HeroShowcase />
