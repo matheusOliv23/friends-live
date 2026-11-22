@@ -80,9 +80,7 @@ export function BroadcastStage({
     ? "Este navegador não oferece compartilhamento de tela. Use Chrome, Edge ou Firefox em localhost ou HTTPS."
     : captureStatus === "ended"
       ? "O compartilhamento foi encerrado. Você pode compartilhar novamente quando quiser."
-      : quality.includeDisplayAudio
-        ? "Compartilhe a aba do jogo e marque “Compartilhar áudio”. Evite tela inteira — captura o Discord e gera eco."
-        : "Voz no Discord, imagem na live. Ative “Áudio da aba” em Qualidade só se quiser som do jogo na transmissão.";
+      : "Compartilhe a aba do jogo e marque “Compartilhar áudio”. Evite tela inteira — captura o Discord e gera eco.";
 
   return (
     <StageShell>

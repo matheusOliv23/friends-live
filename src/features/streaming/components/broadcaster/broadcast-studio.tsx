@@ -15,7 +15,6 @@ import { useRoom } from "@/features/rooms/hooks/use-room";
 import { getWatchPath } from "@/features/rooms/lib/paths";
 import { BroadcastOverviewPanel } from "@/features/streaming/components/broadcaster/broadcast-overview-panel";
 import { BroadcastStage } from "@/features/streaming/components/broadcaster/broadcast-stage";
-import { QualitySettingsPanel } from "@/features/streaming/components/broadcaster/quality-settings-panel";
 import { useScreenCapture } from "@/features/streaming/hooks/use-screen-capture";
 
 interface BroadcastStudioProps {
@@ -192,11 +191,6 @@ export function BroadcastStudio({ roomId }: BroadcastStudioProps) {
 
   const startedAt = room.liveAt ? Date.parse(room.liveAt) : null;
   const stageError = actionError ?? capture.errorMessage ?? livekit.errorMessage;
-  const qualityLocked =
-    capture.isActive ||
-    capture.isRequesting ||
-    livekit.status === "connecting" ||
-    room.status === "ended";
 
   return (
     <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
@@ -230,11 +224,6 @@ export function BroadcastStudio({ roomId }: BroadcastStudioProps) {
             errorMessage={livekit.errorMessage}
           />
         </Panel>
-        <QualitySettingsPanel
-          quality={capture.quality}
-          onChange={capture.updateQuality}
-          locked={qualityLocked}
-        />
       </aside>
     </div>
   );

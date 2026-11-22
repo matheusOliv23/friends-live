@@ -35,18 +35,15 @@ export interface UseScreenCaptureResult {
   isSupported: boolean;
   isActive: boolean;
   isRequesting: boolean;
-  updateQuality: (patch: Partial<StreamQualitySettings>) => void;
   start: () => Promise<MediaStream>;
   stop: () => void;
   /** Expõe o MediaStream para publicação futura (LiveKit/WebRTC). */
   getPublishableStream: () => MediaStream | null;
 }
 
-export function useScreenCapture(
-  initialQuality: StreamQualitySettings = DEFAULT_QUALITY_SETTINGS,
-): UseScreenCaptureResult {
+export function useScreenCapture(): UseScreenCaptureResult {
   const [service] = useState(() => new ScreenCaptureService());
-  const [quality, setQuality] = useState(initialQuality);
+  const quality = DEFAULT_QUALITY_SETTINGS;
 
   const snapshot = useSyncExternalStore(
     (onStoreChange) =>
@@ -64,16 +61,6 @@ export function useScreenCapture(
       service.stop();
     };
   }, [service]);
-
-  const updateQuality = useCallback(
-    (patch: Partial<StreamQualitySettings>) => {
-      if (snapshot.status === "active" || snapshot.status === "requesting") {
-        return;
-      }
-      setQuality((current) => ({ ...current, ...patch }));
-    },
-    [snapshot.status],
-  );
 
   const start = useCallback(async () => {
     return service.start(quality);
@@ -98,7 +85,6 @@ export function useScreenCapture(
     isSupported: ScreenCaptureService.isSupported(),
     isActive: snapshot.status === "active",
     isRequesting: snapshot.status === "requesting",
-    updateQuality,
     start,
     stop,
     getPublishableStream,

@@ -5,7 +5,6 @@ import {
   broadcastSessionReducer,
   initialBroadcastSessionState,
 } from "@/features/streaming/model/broadcast-session";
-import type { StreamQualitySettings } from "@/types/streaming";
 
 export function useBroadcastSession() {
   const [state, dispatch] = useReducer(
@@ -22,17 +21,10 @@ export function useBroadcastSession() {
 
   const reset = useCallback(() => dispatch({ type: "reset" }), []);
 
-  const updateQuality = useCallback(
-    (patch: Partial<StreamQualitySettings>) =>
-      dispatch({ type: "qualityChanged", patch }),
-    [],
-  );
-
   return {
     ...state,
     startSharing,
     endBroadcast,
     reset,
-    updateQuality,
   };
 }

@@ -1,42 +1,7 @@
-import type {
-  StreamContentHint,
-  StreamFrameRate,
-  StreamQualitySettings,
-  StreamResolution,
-} from "@/types/streaming";
-
-interface Option<TValue> {
-  value: TValue;
-  label: string;
-  description?: string;
-}
-
-export const RESOLUTION_OPTIONS: readonly Option<StreamResolution>[] = [
-  { value: "720p", label: "720p" },
-  { value: "1080p", label: "1080p" },
-  { value: "1440p", label: "1440p" },
-];
-
-export const FRAME_RATE_OPTIONS: readonly Option<StreamFrameRate>[] = [
-  { value: 30, label: "30 fps" },
-  { value: 60, label: "60 fps" },
-];
-
-export const CONTENT_HINT_OPTIONS: readonly Option<StreamContentHint>[] = [
-  {
-    value: "motion",
-    label: "Movimento",
-    description: "Prioriza fluidez. Ideal para jogos.",
-  },
-  {
-    value: "detail",
-    label: "Nitidez",
-    description: "Prioriza detalhes. Ideal para textos e aplicativos.",
-  },
-];
+import type { StreamQualitySettings } from "@/types/streaming";
 
 export const RESOLUTION_DIMENSIONS: Record<
-  StreamResolution,
+  StreamQualitySettings["resolution"],
   { width: number; height: number }
 > = {
   "720p": { width: 1280, height: 720 },
@@ -44,11 +9,11 @@ export const RESOLUTION_DIMENSIONS: Record<
   "1440p": { width: 2560, height: 1440 },
 };
 
+/** Qualidade fixa da transmissão (sem painel de ajustes). */
 export const DEFAULT_QUALITY_SETTINGS: StreamQualitySettings = {
   resolution: "1080p",
   frameRate: 60,
   contentHint: "motion",
-  // Áudio da aba ligado por padrão; use Discord sem áudio da tela inteira.
   includeDisplayAudio: true,
 };
 

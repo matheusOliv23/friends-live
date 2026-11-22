@@ -12,8 +12,7 @@ export interface BroadcastSessionState {
 export type BroadcastSessionAction =
   | { type: "started"; stream: MediaStream | null; startedAt: number }
   | { type: "ended" }
-  | { type: "reset" }
-  | { type: "qualityChanged"; patch: Partial<StreamQualitySettings> };
+  | { type: "reset" };
 
 export const initialBroadcastSessionState: BroadcastSessionState = {
   status: "idle",
@@ -41,9 +40,6 @@ export function broadcastSessionReducer(
       if (state.status !== "live") return state;
       return { ...state, status: "ended", stream: null, viewerCount: 0 };
     case "reset":
-      return { ...initialBroadcastSessionState, quality: state.quality };
-    case "qualityChanged":
-      if (state.status === "live") return state;
-      return { ...state, quality: { ...state.quality, ...action.patch } };
+      return { ...initialBroadcastSessionState };
   }
 }
