@@ -1,6 +1,6 @@
-# Nexus Stream Desktop (Windows)
+# Friends Stream Desktop (Windows)
 
-Cliente Windows do Nexus Stream. Abre o estúdio `/stream` para transmitir e também `/watch` para assistir, na mesma janela do app.
+Cliente Windows do Friends Stream. Abre o estúdio `/stream` para transmitir e também `/watch` para assistir, na mesma janela do app.
 
 ## Requisitos
 

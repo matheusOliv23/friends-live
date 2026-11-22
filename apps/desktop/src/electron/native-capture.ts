@@ -44,7 +44,7 @@ export function installDisplayMediaHandler(): void {
         });
 
         const usable = sources.filter(
-          (source) => !/electron|nexus stream/i.test(source.name),
+          (source) => !/electron|nexus stream|friends stream/i.test(source.name),
         );
         const list = usable.length > 0 ? usable : sources;
 

@@ -1,4 +1,4 @@
-export const SITE_NAME = "Nexus Stream";
+export const SITE_NAME = "Friends Stream";
 
 export const SITE_DESCRIPTION =
   "Transmita sua tela para amigos por um link privado, direto do navegador.";

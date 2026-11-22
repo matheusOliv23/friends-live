@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Eye } from "lucide-react";
+import { DownloadDesktopButton } from "@/components/landing/download-desktop-button";
 import { HeroShowcase } from "@/components/landing/hero-showcase";
 import { buttonVariants } from "@/components/ui/button";
 import { CreateRoomButton } from "@/features/rooms/components/create-room-button";
@@ -40,7 +41,7 @@ export function Hero() {
         feed, sem distrações — só a sua tela.
       </p> */}
 
-      <div className="animate-rise stagger-4 mt-8 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row">
+      <div className="animate-rise stagger-4 mt-8 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
         <CreateRoomButton fullWidth className="sm:w-auto" />
         <Link
           href="/watch"
@@ -53,6 +54,7 @@ export function Hero() {
           <Eye data-icon="inline-start" />
           Assistir transmissão
         </Link>
+        <DownloadDesktopButton className="w-full sm:w-auto" />
       </div>
 
       <HeroShowcase />

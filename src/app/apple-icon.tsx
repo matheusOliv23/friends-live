@@ -29,7 +29,7 @@ export default function AppleIcon() {
             letterSpacing: "-0.06em",
           }}
         >
-          N
+          F
         </div>
         <div
           style={{

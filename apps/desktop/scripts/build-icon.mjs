@@ -16,7 +16,7 @@ const svg = `
 <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 512 512">
   <rect width="512" height="512" rx="112" fill="#09090b"/>
   <rect x="10" y="10" width="492" height="492" rx="102" fill="none" stroke="#8b5cf6" stroke-opacity="0.4" stroke-width="12"/>
-  <text x="256" y="300" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="280" font-weight="700" fill="#8b5cf6" letter-spacing="-12">N</text>
+  <text x="256" y="300" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="280" font-weight="700" fill="#8b5cf6" letter-spacing="-12">F</text>
   <circle cx="400" cy="112" r="36" fill="#ef4444"/>
 </svg>
 `;

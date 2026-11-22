@@ -52,7 +52,7 @@ function createWindow(): void {
     height: 840,
     minWidth: 960,
     minHeight: 640,
-    title: "Nexus Stream",
+    title: "Friends Stream",
     backgroundColor: "#09090b",
     autoHideMenuBar: true,
     webPreferences: {

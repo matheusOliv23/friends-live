@@ -46,7 +46,7 @@ export function HeroShowcase() {
                 <span className="animate-live-ring absolute inset-0 rounded-full bg-live" />
                 <span className="relative size-2.5 rounded-full bg-live" />
               </span>
-              <span className="text-xs font-medium">Nexus Stream</span>
+              <span className="text-xs font-medium">Friends Stream</span>
               <span className="hidden text-xs text-muted-foreground sm:inline">
                 · 1080p · 60 fps
               </span>

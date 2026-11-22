@@ -59,7 +59,7 @@ function BrandMark() {
         strokeWidth="1.5"
       />
       <path
-        d="M10 22V10h2.4l5.2 8.2V10H22v12h-2.4L14.4 13.8V22H10Z"
+        d="M10 22V10h11v2.3H12.6v3.2H19V17.8H12.6V22H10Z"
         fill="#8b5cf6"
       />
       <circle cx="23.5" cy="8.5" r="2.25" fill="#ef4444" />
@@ -251,7 +251,7 @@ export function App() {
         <div className="brand">
           <BrandMark />
           <span>
-            Nexus <span className="brand-muted">Stream</span>
+            Friends <span className="brand-muted">Stream</span>
           </span>
         </div>
         <button
@@ -301,7 +301,7 @@ export function App() {
               <div className="showcase-bar">
                 <div className="showcase-meta">
                   <span className="live-dot" aria-hidden />
-                  <span>Nexus Stream</span>
+                  <span>Friends Stream</span>
                   <span className="dim">· 1080p · 60 fps</span>
                 </div>
                 <div className="showcase-controls" aria-hidden>
@@ -384,7 +384,7 @@ export function App() {
       </main>
 
       <footer className="footer">
-        Nexus Stream — transmissão privada de tela.
+        Friends Stream — transmissão privada de tela.
       </footer>
     </div>
   );

@@ -4,7 +4,7 @@ interface BrandMarkProps {
   className?: string;
 }
 
-/** Marca “N” com ponto ao vivo — usada no header e como base dos ícones. */
+/** Marca “F” com ponto ao vivo — usada no header e como base dos ícones. */
 export function BrandMark({ className }: BrandMarkProps) {
   return (
     <svg
@@ -25,7 +25,7 @@ export function BrandMark({ className }: BrandMarkProps) {
         strokeWidth="1.5"
       />
       <path
-        d="M10 22V10h2.4l5.2 8.2V10H22v12h-2.4L14.4 13.8V22H10Z"
+        d="M10 22V10h11v2.3H12.6v3.2H19V17.8H12.6V22H10Z"
         className="fill-primary"
       />
       <circle

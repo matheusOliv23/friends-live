@@ -29,7 +29,7 @@ export default function Icon() {
             letterSpacing: "-0.04em",
           }}
         >
-          N
+          F
         </div>
         <div
           style={{

@@ -26,7 +26,7 @@ export function Logo({ className }: LogoProps) {
     <>
       <BrandMark className="transition-transform duration-200 group-hover:scale-[1.04]" />
       <span className="text-sm font-semibold tracking-tight">
-        Nexus <span className="text-muted-foreground">Stream</span>
+        Friends <span className="text-muted-foreground">Stream</span>
       </span>
     </>
   );
@@ -35,7 +35,7 @@ export function Logo({ className }: LogoProps) {
     return (
       <button
         type="button"
-        aria-label="Nexus Stream — voltar ao launcher"
+        aria-label="Friends Stream — voltar ao launcher"
         className={classNames}
         onClick={() => {
           void goDesktopOrWebHome();
@@ -49,7 +49,7 @@ export function Logo({ className }: LogoProps) {
   return (
     <Link
       href="/"
-      aria-label="Nexus Stream — página inicial"
+      aria-label="Friends Stream — página inicial"
       className={classNames}
     >
       {content}

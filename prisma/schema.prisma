@@ -1,4 +1,4 @@
-// Nexus Stream — modelo de salas (PostgreSQL / Neon).
+// Friends Stream — modelo de salas (PostgreSQL / Neon).
 
 generator client {
   provider = "prisma-client"

@@ -65,7 +65,7 @@ export default function OpenGraphImage() {
               letterSpacing: "-0.02em",
             }}
           >
-            Nexus Stream
+            Friends Stream
           </div>
         </div>
 

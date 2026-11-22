@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     "screen share",
     "live",
     "amigos",
-    "Nexus Stream",
+    "Friends Stream",
   ],
   authors: [{ name: SITE_NAME }],
   creator: SITE_NAME,

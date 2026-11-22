@@ -1,10 +1,10 @@
 {
-  "name": "nexus-stream-desktop",
-  "version": "0.1.1",
+  "name": "friends-stream-desktop",
+  "version": "0.2.0",
   "private": true,
-  "description": "Nexus Stream — cliente Windows para transmitir e assistir",
+  "description": "Friends Stream — cliente Windows para transmitir e assistir",
   "main": "dist-electron/main.js",
-  "author": "Nexus Stream",
+  "author": "Friends Stream",
   "scripts": {
     "dev": "vite",
     "icon": "node scripts/build-icon.mjs",
@@ -36,8 +36,8 @@
     "vite-plugin-electron-renderer": "^0.14.6"
   },
   "build": {
-    "appId": "com.nexusstream.desktop",
-    "productName": "Nexus Stream",
+    "appId": "com.friendsstream.desktop",
+    "productName": "Friends Stream",
     "directories": {
       "output": "release",
       "buildResources": "build"
@@ -88,7 +88,7 @@
     ],
     "protocols": [
       {
-        "name": "Nexus Stream",
+        "name": "Friends Stream",
         "schemes": [
           "nexus"
         ]

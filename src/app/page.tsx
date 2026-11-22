@@ -15,7 +15,7 @@ export default function HomePage() {
         <Hero />
       </main>
       <footer className="animate-rise border-t py-6 text-center text-xs text-muted-foreground">
-        Nexus Stream — transmissão privada de tela.
+        Friends Stream — transmissão privada de tela.
       </footer>
     </>
   );
