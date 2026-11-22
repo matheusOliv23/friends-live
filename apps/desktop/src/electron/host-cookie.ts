@@ -25,8 +25,10 @@ export async function injectHostCookie(options: {
   const url = new URL(siteUrl);
   const secure = url.protocol === "https:";
 
+  const cookieUrl = siteUrl.replace(/\/$/, "");
+
   await session.cookies.set({
-    url: siteUrl,
+    url: cookieUrl,
     name: `${COOKIE_PREFIX}${roomId}`,
     value: sealHostToken(hostToken, cookieSecret),
     path: "/",
@@ -35,4 +37,7 @@ export async function injectHostCookie(options: {
     sameSite: secure ? "no_restriction" : "lax",
     expirationDate: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
   });
+
+  // Garante que o cookie está persistido antes do loadURL do /stream.
+  await session.cookies.flushStore();
 }

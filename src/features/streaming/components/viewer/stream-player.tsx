@@ -223,7 +223,7 @@ function LiveViewerContent({
     <EmptyState
       icon={Sparkles}
       title="Aguardando o vídeo"
-      description="Conectado à sala. O vídeo aparece quando a track do anfitrião for recebida — confirme que a captura continua ativa na outra janela."
+      description="Conectado à sala. O vídeo aparece quando a track do amigo for recebida — confirme que a captura continua ativa na outra janela."
     />
   );
 }

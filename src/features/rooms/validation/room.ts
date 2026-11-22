@@ -11,7 +11,7 @@ export function assertValidRoomId(id: string): string {
 export function assertHostTokenPresent(token: string | null): string {
   if (!token) {
     throw new AppError(
-      "Autorização do anfitrião ausente.",
+      "Autorização do amigo ausente.",
       401,
       "host_unauthorized",
     );

@@ -1,11 +1,16 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { app, BrowserWindow, ipcMain, shell } from "electron";
-import { injectHostCookie } from "./host-cookie";
 import {
   getAppAudioFormat,
   stopAppAudioCapture,
 } from "./app-audio-capture";
+import { setupAutoUpdater } from "./auto-updater";
+import {
+  installHostAuthHeader,
+  rememberHostToken,
+} from "./host-auth";
+import { injectHostCookie } from "./host-cookie";
 import {
   installDisplayMediaHandler,
   listWindowSources,
@@ -139,6 +144,10 @@ if (!gotLock) {
     setCaptureAudioMode(audioPrefs.audioMode);
     installDisplayMediaHandler();
     createWindow();
+    if (mainWindow) {
+      installHostAuthHeader(mainWindow.webContents.session, SITE_URL);
+    }
+    setupAutoUpdater(() => mainWindow);
 
     const bootLink = process.argv.find((arg) => arg.startsWith("nexus://"));
     if (bootLink) handleDeepLink(bootLink);
@@ -179,6 +188,8 @@ ipcMain.handle(
     if (!mainWindow) return { ok: false as const };
 
     if (payload.hostToken) {
+      rememberHostToken(payload.roomId, payload.hostToken);
+      installHostAuthHeader(mainWindow.webContents.session, SITE_URL);
       await injectHostCookie({
         session: mainWindow.webContents.session,
         siteUrl: SITE_URL,
@@ -197,6 +208,19 @@ ipcMain.handle(
 ipcMain.handle("nexus:open-external", async (_event, url: string) => {
   await shell.openExternal(url);
 });
+
+ipcMain.handle(
+  "nexus:open-watch",
+  async (_event, roomId?: string | null) => {
+    if (!mainWindow) return { ok: false as const };
+    stopAppAudioCapture();
+    const target = roomId?.trim()
+      ? watchUrl(SITE_URL, roomId.trim())
+      : `${SITE_URL}/watch`;
+    await mainWindow.loadURL(target);
+    return { ok: true as const, url: target };
+  },
+);
 
 ipcMain.handle("nexus:watch-url", (_event, roomId: string) =>
   watchUrl(SITE_URL, roomId),

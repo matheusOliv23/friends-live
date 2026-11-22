@@ -421,6 +421,29 @@ select {
   color: var(--muted);
 }
 
+.update-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  background: color-mix(in oklab, var(--primary) 18%, transparent);
+  border-bottom: 1px solid color-mix(in oklab, var(--primary) 30%, transparent);
+  font-size: 0.85rem;
+  color: var(--foreground);
+}
+
+.update-banner-ready {
+  background: color-mix(in oklab, var(--primary) 28%, transparent);
+}
+
+.update-banner-btn {
+  height: 34px;
+  padding: 0 12px;
+  font-size: 0.8rem;
+}
+
 @keyframes live-ring {
   0% {
     transform: scale(1);

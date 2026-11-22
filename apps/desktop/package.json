@@ -1,17 +1,19 @@
 {
   "name": "nexus-stream-desktop",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
-  "description": "Nexus Stream — cliente Windows só para o anfitrião",
+  "description": "Nexus Stream — cliente Windows para transmitir e assistir",
   "main": "dist-electron/main.js",
   "author": "Nexus Stream",
   "scripts": {
     "dev": "vite",
     "icon": "node scripts/build-icon.mjs",
     "build": "npm run icon && vite build && electron-builder --win",
-    "pack": "npm run icon && vite build && electron-builder --win --dir"
+    "pack": "npm run icon && vite build && electron-builder --win --dir",
+    "release": "npm run icon && vite build && electron-builder --win --publish always"
   },
   "dependencies": {
+    "electron-updater": "^6.8.11",
     "koffi": "^3.3.8",
     "livekit-client": "^2.24.1",
     "loopback-capture": "^4.0.0",
@@ -77,6 +79,13 @@
     "portable": {
       "artifactName": "${productName}-Portable-${version}-${arch}.${ext}"
     },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "matheusOliv23",
+        "repo": "friends-live"
+      }
+    ],
     "protocols": [
       {
         "name": "Nexus Stream",

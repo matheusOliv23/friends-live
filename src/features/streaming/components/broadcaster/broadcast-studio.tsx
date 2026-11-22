@@ -28,14 +28,42 @@ export function BroadcastStudio({ roomId }: BroadcastStudioProps) {
   const livekit = useLiveKitSession();
   const [isEnding, setIsEnding] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [hostRetries, setHostRetries] = useState(0);
 
   const disconnectLiveKit = livekit.disconnect;
+  const refreshRoom = roomState.refresh;
+
+  useEffect(() => {
+    setHostRetries(0);
+  }, [roomId]);
 
   useEffect(() => {
     if (capture.status === "ended") {
       void disconnectLiveKit();
     }
   }, [capture.status, disconnectLiveKit]);
+
+  // Na 1ª carga (esp. Electron) o cookie/Bearer pode atrasar — tenta de novo antes de bloquear.
+  useEffect(() => {
+    if (roomState.isLoading) return;
+    if (!roomState.room || roomState.room.status === "ended") return;
+    if (roomState.isHost) return;
+    if (hostRetries >= 5) return;
+
+    const timer = window.setTimeout(() => {
+      void refreshRoom().finally(() => {
+        setHostRetries((count) => count + 1);
+      });
+    }, 350);
+
+    return () => window.clearTimeout(timer);
+  }, [
+    roomState.isLoading,
+    roomState.room,
+    roomState.isHost,
+    hostRetries,
+    refreshRoom,
+  ]);
 
   if (roomState.isLoading) {
     return (
@@ -63,11 +91,29 @@ export function BroadcastStudio({ roomId }: BroadcastStudioProps) {
     );
   }
 
+  const waitingHostAuth =
+    !!roomState.room &&
+    roomState.room.status !== "ended" &&
+    !roomState.isHost &&
+    hostRetries < 5;
+
+  if (waitingHostAuth) {
+    return (
+      <div
+        role="status"
+        className="flex min-h-80 items-center justify-center gap-2 text-sm text-muted-foreground"
+      >
+        <LoaderCircle className="size-5 animate-spin text-primary" aria-hidden />
+        Confirmando acesso…
+      </div>
+    );
+  }
+
   if (roomState.room && !roomState.isHost && roomState.room.status !== "ended") {
     return (
       <EmptyState
         icon={ShieldAlert}
-        title="Acesso restrito ao anfitrião"
+        title="Acesso restrito ao amigo"
         description="Esta página é exclusiva de quem criou a sala. Use o link de espectador para assistir."
       >
         <Link

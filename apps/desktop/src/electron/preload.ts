@@ -3,12 +3,14 @@ import type {
   DesktopAudioPrefs,
   DesktopDeepLink,
   NexusDesktopApi,
+  UpdateStatusPayload,
 } from "../shared/desktop-api";
 
 const api: NexusDesktopApi = {
   getConfig: () => ipcRenderer.invoke("nexus:get-config"),
   consumeDeepLink: () => ipcRenderer.invoke("nexus:consume-deep-link"),
   openStream: (payload) => ipcRenderer.invoke("nexus:open-stream", payload),
+  openWatch: (roomId) => ipcRenderer.invoke("nexus:open-watch", roomId ?? null),
   openExternal: (url) => ipcRenderer.invoke("nexus:open-external", url),
   watchUrl: (roomId) => ipcRenderer.invoke("nexus:watch-url", roomId),
   listSources: () => ipcRenderer.invoke("nexus:list-sources"),
@@ -18,6 +20,8 @@ const api: NexusDesktopApi = {
   getAudioPrefs: () => ipcRenderer.invoke("nexus:get-audio-prefs"),
   getAppAudioFormat: () => ipcRenderer.invoke("nexus:get-app-audio-format"),
   stopAppAudio: () => ipcRenderer.invoke("nexus:stop-app-audio"),
+  checkForUpdates: () => ipcRenderer.invoke("nexus:check-for-updates"),
+  installUpdate: () => ipcRenderer.invoke("nexus:install-update"),
   onAppAudioChunk: (handler) => {
     const listener = (_event: Electron.IpcRendererEvent, payload: unknown) => {
       if (payload instanceof Uint8Array) {
@@ -45,6 +49,16 @@ const api: NexusDesktopApi = {
     };
     ipcRenderer.on("nexus:deep-link", listener);
     return () => ipcRenderer.removeListener("nexus:deep-link", listener);
+  },
+  onUpdateStatus: (handler) => {
+    const listener = (
+      _event: Electron.IpcRendererEvent,
+      payload: UpdateStatusPayload,
+    ) => {
+      handler(payload);
+    };
+    ipcRenderer.on("nexus:update-status", listener);
+    return () => ipcRenderer.removeListener("nexus:update-status", listener);
   },
 };
 

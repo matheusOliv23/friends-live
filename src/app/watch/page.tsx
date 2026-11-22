@@ -20,7 +20,7 @@ export default function WatchIndexPage() {
             Assistir transmissão
           </h1>
           <p className="mt-1.5 mb-6 text-sm text-muted-foreground">
-            Cole o link privado que você recebeu do anfitrião.
+            Cole o link privado que você recebeu do amigo.
           </p>
           <JoinRoomForm />
         </div>

@@ -31,7 +31,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     );
     if (!isHost) {
       throw new AppError(
-        "Acesso restrito ao anfitrião.",
+        "Acesso restrito ao amigo.",
         403,
         "host_forbidden",
       );

@@ -64,6 +64,7 @@ export default defineConfig(({ mode }) => {
               rollupOptions: {
                 external: [
                   "electron",
+                  "electron-updater",
                   "loopback-capture",
                   "koffi",
                   "bindings",

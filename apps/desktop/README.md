@@ -1,6 +1,6 @@
 # Nexus Stream Desktop (Windows)
 
-Cliente **só anfitrião** para Windows. Usa a mesma API/LiveKit/Neon do site e abre o mesmo estúdio `/stream` (layout idêntico). Espectadores continuam no navegador em `/watch`.
+Cliente Windows do Nexus Stream. Abre o estúdio `/stream` para transmitir e também `/watch` para assistir, na mesma janela do app.
 
 ## Requisitos
 
@@ -34,6 +34,26 @@ npm run desktop:build
 ```
 
 Artefatos em `apps/desktop/release/` (instalador NSIS + portable).
+
+## Auto-update (GitHub Releases)
+
+O app usa `electron-updater` com o **Setup NSIS** (Portable não atualiza sozinho).
+
+1. Crie um [Personal Access Token](https://github.com/settings/tokens) com `repo` (ou `contents:write` + releases).
+2. Publique a versão:
+
+```bash
+# PowerShell
+$env:GH_TOKEN="seu_token"
+# suba a versão em apps/desktop/package.json (ex.: 0.1.1 → 0.1.2)
+npm run desktop:release
+```
+
+Isso gera o Setup/Portable e cria/atualiza um **GitHub Release** em `matheusOliv23/friends-live` com `latest.yml`.
+
+3. Amigos instalam o **Setup** uma vez. Nas próximas aberturas o app checa update, baixa e pede para reiniciar.
+
+Releases: https://github.com/matheusOliv23/friends-live/releases
 
 ## Fluxos
 

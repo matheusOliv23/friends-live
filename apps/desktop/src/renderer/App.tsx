@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { ArrowRight, Eye, MonitorUp } from "lucide-react";
+import { ArrowRight, Eye, MonitorUp, RefreshCw } from "lucide-react";
 import {
   createRoom,
   DesktopApiError,
@@ -7,6 +7,7 @@ import {
   loadHostToken,
   saveHostToken,
 } from "./api";
+import type { UpdateStatusPayload } from "../shared/desktop-api";
 
 type AudioMode =
   | "app-loopback"
@@ -74,6 +75,16 @@ export function App() {
   const [audioMode, setAudioMode] = useState<AudioMode>("app-loopback");
   const [audioDevices, setAudioDevices] = useState<MediaDeviceInfo[]>([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState("");
+  const [updateStatus, setUpdateStatus] = useState<UpdateStatusPayload | null>(
+    null,
+  );
+
+  useEffect(() => {
+    const off = window.nexusDesktop.onUpdateStatus((payload) => {
+      setUpdateStatus(payload);
+    });
+    return off;
+  }, []);
 
   useEffect(() => {
     void (async () => {
@@ -186,7 +197,7 @@ export function App() {
       }
       if (!result.isHost && !hostToken) {
         throw new Error(
-          "Sem token de anfitrião. Crie a sala aqui ou, no site, use “Abrir no app Windows”.",
+          "Sem permissão de amigo nesta máquina. Crie a sala aqui ou, no site, use “Abrir no app Windows”.",
         );
       }
       await openHostStudio(roomId, hostToken);
@@ -203,9 +214,36 @@ export function App() {
     }
   }
 
-  function openWatchHome() {
-    void window.nexusDesktop.openExternal(`${siteUrl}/watch`);
+  async function openWatchHome() {
+    setError(null);
+    const result = await window.nexusDesktop.openWatch();
+    if (!result.ok) {
+      setError("Não foi possível abrir a tela de espectador.");
+    }
   }
+
+  const updateBanner =
+    updateStatus?.status === "downloading" ? (
+      <div className="update-banner" role="status">
+        Baixando atualização… {updateStatus.percent}%
+      </div>
+    ) : updateStatus?.status === "ready" ? (
+      <div className="update-banner update-banner-ready" role="status">
+        <span>Versão {updateStatus.version} pronta.</span>
+        <button
+          type="button"
+          className="btn btn-primary update-banner-btn"
+          onClick={() => void window.nexusDesktop.installUpdate()}
+        >
+          <RefreshCw size={14} aria-hidden />
+          Reiniciar agora
+        </button>
+      </div>
+    ) : updateStatus?.status === "available" ? (
+      <div className="update-banner" role="status">
+        Nova versão {updateStatus.version} encontrada. Baixando…
+      </div>
+    ) : null;
 
   return (
     <div className="app">
@@ -216,10 +254,16 @@ export function App() {
             Nexus <span className="brand-muted">Stream</span>
           </span>
         </div>
-        <button type="button" className="link-ghost" onClick={openWatchHome}>
+        <button
+          type="button"
+          className="link-ghost"
+          onClick={() => void openWatchHome()}
+        >
           Assistir
         </button>
       </header>
+
+      {updateBanner}
 
       <main className="main">
         <div className="cta-row">
@@ -237,7 +281,7 @@ export function App() {
             type="button"
             className="btn btn-outline"
             disabled={busy}
-            onClick={openWatchHome}
+            onClick={() => void openWatchHome()}
           >
             <Eye size={18} aria-hidden />
             Assistir transmissão
