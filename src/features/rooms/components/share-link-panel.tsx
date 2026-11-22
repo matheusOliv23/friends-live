@@ -90,7 +90,7 @@ export function ShareLinkPanel({ roomId }: ShareLinkPanelProps) {
     <Panel
       title="Link da sala"
       icon={Link2}
-      description="Envie apenas para quem deve assistir."
+      description="Link fixo da sala — pode reutilizar nas próximas transmissões."
     >
       <div className="flex flex-col gap-2 sm:flex-row">
         <Input

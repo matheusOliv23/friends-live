@@ -16,16 +16,16 @@ export function PlayerStateOverlay({ status }: PlayerStateOverlayProps) {
       return (
         <EmptyState
           icon={Hourglass}
-          title="A transmissão ainda não começou"
-          description="O vídeo aparecerá aqui quando o amigo começar a compartilhar a tela."
+          title="Aguardando o amigo"
+          description="O vídeo aparece aqui quando a transmissão começar — pode ficar nesta página, o link é o mesmo."
         />
       );
     case "ended":
       return (
         <EmptyState
           icon={MonitorOff}
-          title="A transmissão foi encerrada"
-          description="O amigo parou de compartilhar a tela."
+          title="Sala não encontrada"
+          description="Este link não existe mais. Peça um novo link ao amigo."
         >
           <Link href="/" className={buttonVariants({ variant: "outline", size: "lg" })}>
             Voltar ao início

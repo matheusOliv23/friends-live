@@ -1,19 +1,16 @@
 import type { ReactNode } from "react";
-import { LoaderCircle, MonitorOff, MonitorUp } from "lucide-react";
+import { LoaderCircle, MonitorUp } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
-import { HomeLink } from "@/components/home-link";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { ScreenPreview } from "@/features/streaming/components/screen-preview";
 import { StreamControls } from "@/features/streaming/components/stream-controls";
 import type {
   DetectedCaptureSettings,
   ScreenCaptureStatus,
 } from "@/features/streaming/types/capture";
-import type { RoomStatus } from "@/types/rooms";
 import type { StreamQualitySettings } from "@/types/streaming";
 
 interface BroadcastStageProps {
-  roomStatus: RoomStatus;
   captureStatus: ScreenCaptureStatus;
   stream: MediaStream | null;
   quality: StreamQualitySettings;
@@ -25,7 +22,6 @@ interface BroadcastStageProps {
 }
 
 export function BroadcastStage({
-  roomStatus,
   captureStatus,
   stream,
   quality,
@@ -35,24 +31,6 @@ export function BroadcastStage({
   onStartSharing,
   onStopSharing,
 }: BroadcastStageProps) {
-  if (roomStatus === "ended") {
-    return (
-      <StageShell>
-        <EmptyState
-          icon={MonitorOff}
-          title="Transmissão encerrada"
-          description="Esta sala foi encerrada. Crie uma nova sala para transmitir novamente."
-        >
-          <HomeLink
-            className={buttonVariants({ variant: "outline", size: "lg" })}
-          >
-            Voltar ao início
-          </HomeLink>
-        </EmptyState>
-      </StageShell>
-    );
-  }
-
   if (captureStatus === "active" && stream) {
     return (
       <StageShell>

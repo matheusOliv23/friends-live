@@ -31,16 +31,28 @@ export function BroadcastStudio({ roomId }: BroadcastStudioProps) {
 
   const disconnectLiveKit = livekit.disconnect;
   const refreshRoom = roomState.refresh;
+  const resetRoom = roomState.end;
+  const isHost = roomState.isHost;
+  const roomStatus = roomState.room?.status;
 
   useEffect(() => {
     setHostRetries(0);
   }, [roomId]);
 
   useEffect(() => {
-    if (capture.status === "ended") {
-      void disconnectLiveKit();
-    }
-  }, [capture.status, disconnectLiveKit]);
+    if (capture.status !== "ended") return;
+    void (async () => {
+      await disconnectLiveKit();
+      // Se a captura caiu sozinha, libera a sala no mesmo link.
+      if (isHost && roomStatus === "live") {
+        try {
+          await resetRoom();
+        } catch {
+          // ignore — UI ainda permite Parar transmissão
+        }
+      }
+    })();
+  }, [capture.status, disconnectLiveKit, isHost, resetRoom, roomStatus]);
 
   // Na 1ª carga (esp. Electron) o cookie/Bearer pode atrasar — tenta de novo antes de bloquear.
   useEffect(() => {
@@ -130,7 +142,7 @@ export function BroadcastStudio({ roomId }: BroadcastStudioProps) {
 
   async function handleStartSharing() {
     setActionError(null);
-    const shouldGoLive = roomState.room?.status === "waiting";
+    const shouldGoLive = roomState.room?.status !== "live";
 
     try {
       const stream = await capture.start();
@@ -166,8 +178,16 @@ export function BroadcastStudio({ roomId }: BroadcastStudioProps) {
     setActionError(null);
     try {
       await livekit.disconnect();
-    } finally {
       capture.stop();
+      // Volta a sala para waiting — espectadores no mesmo link aguardam de novo.
+      await roomState.end();
+    } catch (err) {
+      capture.stop();
+      setActionError(
+        err instanceof RoomApiError
+          ? err.message
+          : "Não foi possível parar o compartilhamento.",
+      );
     }
   }
 
@@ -182,7 +202,7 @@ export function BroadcastStudio({ roomId }: BroadcastStudioProps) {
       setActionError(
         err instanceof RoomApiError
           ? err.message
-          : "Não foi possível encerrar a sala.",
+          : "Não foi possível parar a transmissão.",
       );
     } finally {
       setIsEnding(false);
@@ -196,7 +216,6 @@ export function BroadcastStudio({ roomId }: BroadcastStudioProps) {
     <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
       <div className="min-w-0 flex-1 space-y-4">
         <BroadcastStage
-          roomStatus={room.status}
           captureStatus={capture.status}
           stream={capture.stream}
           quality={capture.quality}

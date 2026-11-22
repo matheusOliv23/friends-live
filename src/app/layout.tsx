@@ -1,6 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { SITE_DESCRIPTION, SITE_NAME, getSiteUrl } from "@/lib/site";
+import {
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_TAGLINE,
+  getSiteUrl,
+} from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -41,12 +46,12 @@ export const metadata: Metadata = {
     type: "website",
     locale: "pt_BR",
     siteName: SITE_NAME,
-    title: SITE_NAME,
+    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
     description: SITE_DESCRIPTION,
   },
   twitter: {
     card: "summary_large_image",
-    title: SITE_NAME,
+    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
     description: SITE_DESCRIPTION,
   },
   robots: {

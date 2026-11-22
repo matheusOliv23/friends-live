@@ -28,13 +28,7 @@ export class LiveKitTokenService {
       throw new AppError("Sala não encontrada.", 404, "room_not_found");
     }
 
-    if (room.status === "ended") {
-      throw new AppError(
-        "Esta sala já foi encerrada.",
-        409,
-        "room_already_ended",
-      );
-    }
+    // Salas `ended` legadas ainda podem emitir token — o host revive com goLive.
 
     const isHost =
       hostToken !== null && verifyToken(hostToken, room.hostTokenHash);

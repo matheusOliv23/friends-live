@@ -99,14 +99,14 @@ describe("LiveKitTokenService", () => {
     } satisfies Partial<AppError>);
   });
 
-  it("rejeita sala encerrada", async () => {
+  it("emite token mesmo para sala ended legada (link reutilizável)", async () => {
     const service = createLiveKitTokenServiceForTests(
       createMemoryRepo(createRoom({ status: "ended" })),
     );
 
-    await expect(service.issueToken("room_abc123", HOST_TOKEN)).rejects.toMatchObject({
-      code: "room_already_ended",
-    });
+    const result = await service.issueToken("room_abc123", HOST_TOKEN);
+    expect(result.token).toBeTruthy();
+    expect(result.role).toBe("publisher");
   });
 
   it("falha quando LiveKit não está configurado", async () => {

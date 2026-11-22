@@ -11,16 +11,16 @@ interface StatusMeta {
 export const ROOM_STATUS_META: Record<RoomStatus, StatusMeta> = {
   waiting: { label: "Aguardando", tone: "warning" },
   live: { label: "Ao vivo", tone: "live", pulse: true },
-  ended: { label: "Encerrada", tone: "neutral" },
+  // Legado: salas antigas “encerradas” passam a se comportar como ociosas.
+  ended: { label: "Aguardando", tone: "warning" },
 };
 
 export function roomStatusToViewerStatus(status: RoomStatus): ViewerStatus {
   switch (status) {
-    case "waiting":
-      return "waiting";
     case "live":
       return "live";
+    case "waiting":
     case "ended":
-      return "ended";
+      return "waiting";
   }
 }

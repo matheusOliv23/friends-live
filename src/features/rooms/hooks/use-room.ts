@@ -76,14 +76,13 @@ export function useRoom({
 
   useEffect(() => {
     if (!enabled || pollIntervalMs <= 0) return;
-    if (room?.status === "ended") return;
 
     const interval = window.setInterval(() => {
       void refresh();
     }, pollIntervalMs);
 
     return () => window.clearInterval(interval);
-  }, [enabled, pollIntervalMs, refresh, room?.status]);
+  }, [enabled, pollIntervalMs, refresh]);
 
   const goLive = useCallback(async () => {
     const next = await goLiveRoom(roomId);

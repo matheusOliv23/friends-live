@@ -25,7 +25,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
       readHostTokenFromRequest(request, id),
     );
 
-    const { isHost, room } = await getRoomService().getRoomWithHostCheck(
+    const { isHost } = await getRoomService().getRoomWithHostCheck(
       id,
       hostToken,
     );
@@ -35,9 +35,6 @@ export async function POST(request: NextRequest, context: RouteContext) {
         403,
         "host_forbidden",
       );
-    }
-    if (room.status === "ended") {
-      throw new AppError("Esta sala já foi encerrada.", 409, "room_ended");
     }
 
     const deepLink = `nexus://stream/${encodeURIComponent(id)}?ht=${encodeURIComponent(hostToken)}`;

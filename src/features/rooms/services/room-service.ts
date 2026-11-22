@@ -44,34 +44,30 @@ export class RoomService {
   async goLive(id: string, hostToken: string): Promise<PublicRoom> {
     const record = await this.requireAuthorizedHost(id, hostToken);
 
-    if (record.status === "ended") {
-      throw new AppError(
-        "Esta sala já foi encerrada.",
-        409,
-        "room_already_ended",
-      );
-    }
-
     if (record.status === "live") {
       return toPublicRoom(record);
     }
 
+    // waiting ou ended legado → mesma sala volta ao ar no link fixo.
     const updated = await this.rooms.updateStatus(id, "live", {
       liveAt: new Date(),
+      endedAt: null,
       mediaSessionId: id,
     });
     return toPublicRoom(updated);
   }
 
+  /**
+   * Para a transmissão sem matar o link: a sala volta para `waiting`
+   * e o mesmo /watch/{id} pode ser reutilizado.
+   */
   async endRoom(id: string, hostToken: string): Promise<PublicRoom> {
-    const record = await this.requireAuthorizedHost(id, hostToken);
+    await this.requireAuthorizedHost(id, hostToken);
 
-    if (record.status === "ended") {
-      return toPublicRoom(record);
-    }
-
-    const updated = await this.rooms.updateStatus(id, "ended", {
-      endedAt: new Date(),
+    const updated = await this.rooms.updateStatus(id, "waiting", {
+      liveAt: null,
+      endedAt: null,
+      mediaSessionId: null,
     });
     return toPublicRoom(updated);
   }

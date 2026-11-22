@@ -28,7 +28,7 @@ export function BroadcastOverviewPanel({
 }: BroadcastOverviewPanelProps) {
   const meta = ROOM_STATUS_META[status];
   const isLive = status === "live";
-  const canEnd = status === "waiting" || status === "live";
+  const canEnd = status === "live";
   const elapsed = useElapsedSeconds(isLive ? startedAt : null);
 
   return (
@@ -61,8 +61,12 @@ export function BroadcastOverviewPanel({
         disabled={!canEnd || isEnding}
         className="mt-4 h-10 w-full"
       >
-        {isEnding ? "Encerrando…" : "Encerrar transmissão"}
+        {isEnding ? "Parando…" : "Parar transmissão"}
       </Button>
+      <p className="mt-2 text-xs text-muted-foreground">
+        O link dos amigos continua o mesmo. Você pode transmitir de novo quando
+        quiser.
+      </p>
     </Panel>
   );
 }

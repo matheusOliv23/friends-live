@@ -22,7 +22,7 @@ export function StreamControls({
         className="h-10 px-4 shadow-lg"
       >
         <MonitorOff data-icon="inline-start" />
-        Encerrar compartilhamento
+        Parar compartilhamento
       </Button>
     </div>
   );

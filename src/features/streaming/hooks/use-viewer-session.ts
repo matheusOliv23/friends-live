@@ -62,8 +62,7 @@ export function useViewerSession(roomId: string): ViewerSession {
     disconnect,
   } = useLiveKitSession();
 
-  const canJoinMedia =
-    !!roomState.room && roomState.room.status !== "ended";
+  const canJoinMedia = !!roomState.room;
   const joinGenerationRef = useRef(0);
 
   useEffect(() => {
