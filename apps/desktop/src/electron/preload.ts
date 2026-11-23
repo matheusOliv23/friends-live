@@ -20,6 +20,7 @@ const api: NexusDesktopApi = {
   getAudioPrefs: () => ipcRenderer.invoke("nexus:get-audio-prefs"),
   getAppAudioFormat: () => ipcRenderer.invoke("nexus:get-app-audio-format"),
   stopAppAudio: () => ipcRenderer.invoke("nexus:stop-app-audio"),
+  setPowerSave: (enabled) => ipcRenderer.invoke("nexus:set-power-save", enabled),
   checkForUpdates: () => ipcRenderer.invoke("nexus:check-for-updates"),
   installUpdate: () => ipcRenderer.invoke("nexus:install-update"),
   onAppAudioChunk: (handler) => {

@@ -48,6 +48,8 @@ export interface NexusDesktopApi {
   getAudioPrefs: () => Promise<DesktopAudioPrefs>;
   getAppAudioFormat: () => Promise<AppAudioFormat>;
   stopAppAudio: () => Promise<void>;
+  /** Impede o Windows de suspender o app enquanto transmite. */
+  setPowerSave: (enabled: boolean) => Promise<void>;
   checkForUpdates: () => Promise<{
     ok: boolean;
     version?: string | null;

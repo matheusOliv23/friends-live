@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { LoaderCircle, ShieldAlert, Signal } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
@@ -28,8 +28,14 @@ export function BroadcastStudio({ roomId }: BroadcastStudioProps) {
   const [isEnding, setIsEnding] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [hostRetries, setHostRetries] = useState(0);
+  const shareEpochRef = useRef(0);
+  const prevCaptureStatusRef = useRef(capture.status);
+  const stoppingRef = useRef(false);
+  const recoveringRef = useRef(false);
+  const hadConnectedRef = useRef(false);
 
   const disconnectLiveKit = livekit.disconnect;
+  const connectAsPublisher = livekit.connectAsPublisher;
   const refreshRoom = roomState.refresh;
   const resetRoom = roomState.end;
   const isHost = roomState.isHost;
@@ -40,10 +46,111 @@ export function BroadcastStudio({ roomId }: BroadcastStudioProps) {
   }, [roomId]);
 
   useEffect(() => {
-    if (capture.status !== "ended") return;
+    if (livekit.status === "connected") {
+      hadConnectedRef.current = true;
+    }
+    if (!capture.isActive) {
+      hadConnectedRef.current = false;
+    }
+  }, [livekit.status, capture.isActive]);
+
+  // Mantém o PC acordado enquanto transmite (web Wake Lock + Electron powerSave).
+  useEffect(() => {
+    if (!capture.isActive) return;
+
+    let wakeLock: WakeLockSentinel | null = null;
+    let cancelled = false;
+
     void (async () => {
+      try {
+        wakeLock = (await navigator.wakeLock?.request("screen")) ?? null;
+      } catch {
+        // navegador pode negar — ok
+      }
+      if (cancelled) {
+        void wakeLock?.release();
+        return;
+      }
+      const desktop = (
+        globalThis as typeof globalThis & {
+          nexusDesktop?: { setPowerSave?: (enabled: boolean) => Promise<void> };
+        }
+      ).nexusDesktop;
+      await desktop?.setPowerSave?.(true);
+    })();
+
+    return () => {
+      cancelled = true;
+      void wakeLock?.release();
+      const desktop = (
+        globalThis as typeof globalThis & {
+          nexusDesktop?: { setPowerSave?: (enabled: boolean) => Promise<void> };
+        }
+      ).nexusDesktop;
+      void desktop?.setPowerSave?.(false);
+    };
+  }, [capture.isActive]);
+
+  // Se o sinal cair no meio do jogo, reconecta sem pedir a tela de novo.
+  useEffect(() => {
+    if (!capture.isActive || !capture.stream) return;
+    if (!hadConnectedRef.current) return;
+    if (stoppingRef.current || recoveringRef.current) return;
+    if (livekit.status !== "disconnected" && livekit.status !== "error") {
+      return;
+    }
+
+    recoveringRef.current = true;
+    const stream = capture.stream;
+    const quality = capture.quality;
+    const epoch = shareEpochRef.current;
+
+    void (async () => {
+      try {
+        setActionError("Reconectando à transmissão…");
+        await connectAsPublisher(roomId, stream, quality);
+        if (epoch === shareEpochRef.current) {
+          setActionError(null);
+        }
+      } catch (err) {
+        if (epoch !== shareEpochRef.current) return;
+        setActionError(
+          err instanceof Error
+            ? err.message
+            : "A conexão caiu. Toque em compartilhar de novo.",
+        );
+      } finally {
+        recoveringRef.current = false;
+      }
+    })();
+  }, [
+    capture.isActive,
+    capture.stream,
+    capture.quality,
+    livekit.status,
+    connectAsPublisher,
+    roomId,
+  ]);
+
+  // Só limpa quando a captura CAI de active→ended.
+  // Evita um disconnect atrasado matar a próxima tentativa de compartilhar.
+  useEffect(() => {
+    const prev = prevCaptureStatusRef.current;
+    prevCaptureStatusRef.current = capture.status;
+
+    if (!(prev === "active" && capture.status === "ended")) return;
+    if (stoppingRef.current) return;
+
+    const epoch = shareEpochRef.current;
+    let cancelled = false;
+
+    void (async () => {
+      await new Promise((resolve) => window.setTimeout(resolve, 250));
+      if (cancelled || epoch !== shareEpochRef.current) return;
+
       await disconnectLiveKit();
-      // Se a captura caiu sozinha, libera a sala no mesmo link.
+      if (cancelled || epoch !== shareEpochRef.current) return;
+
       if (isHost && roomStatus === "live") {
         try {
           await resetRoom();
@@ -52,6 +159,10 @@ export function BroadcastStudio({ roomId }: BroadcastStudioProps) {
         }
       }
     })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [capture.status, disconnectLiveKit, isHost, resetRoom, roomStatus]);
 
   // Na 1ª carga (esp. Electron) o cookie/Bearer pode atrasar — tenta de novo antes de bloquear.
@@ -142,6 +253,7 @@ export function BroadcastStudio({ roomId }: BroadcastStudioProps) {
 
   async function handleStartSharing() {
     setActionError(null);
+    shareEpochRef.current += 1;
     const shouldGoLive = roomState.room?.status !== "live";
 
     try {
@@ -158,8 +270,13 @@ export function BroadcastStudio({ roomId }: BroadcastStudioProps) {
         }
       }
     } catch (err) {
-      capture.stop();
-      await livekit.disconnect().catch(() => undefined);
+      stoppingRef.current = true;
+      try {
+        capture.stop();
+        await livekit.disconnect().catch(() => undefined);
+      } finally {
+        stoppingRef.current = false;
+      }
 
       if (err instanceof RoomApiError) {
         setActionError(err.message);
@@ -176,6 +293,8 @@ export function BroadcastStudio({ roomId }: BroadcastStudioProps) {
 
   async function handleStopSharing() {
     setActionError(null);
+    stoppingRef.current = true;
+    shareEpochRef.current += 1;
     try {
       await livekit.disconnect();
       capture.stop();
@@ -188,12 +307,16 @@ export function BroadcastStudio({ roomId }: BroadcastStudioProps) {
           ? err.message
           : "Não foi possível parar o compartilhamento.",
       );
+    } finally {
+      stoppingRef.current = false;
     }
   }
 
   async function handleEnd() {
     setIsEnding(true);
     setActionError(null);
+    stoppingRef.current = true;
+    shareEpochRef.current += 1;
     try {
       await livekit.disconnect();
       capture.stop();
@@ -205,6 +328,7 @@ export function BroadcastStudio({ roomId }: BroadcastStudioProps) {
           : "Não foi possível parar a transmissão.",
       );
     } finally {
+      stoppingRef.current = false;
       setIsEnding(false);
     }
   }

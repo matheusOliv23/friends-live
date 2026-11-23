@@ -7,7 +7,7 @@ export interface LiveKitServerConfig {
 }
 
 export function getLiveKitServerConfig(): LiveKitServerConfig {
-  const url = process.env.LIVEKIT_URL?.trim();
+  const url = process.env.LIVEKIT_URL?.trim().replace(/\/$/, "");
   const apiKey = process.env.LIVEKIT_API_KEY?.trim();
   const apiSecret = process.env.LIVEKIT_API_SECRET?.trim();
 

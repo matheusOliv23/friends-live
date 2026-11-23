@@ -7,8 +7,9 @@ import type { LiveKitTokenResponse } from "@/features/livekit/types";
 import { AppError } from "@/lib/http";
 import { getLiveKitServerConfig } from "@/lib/livekit-env";
 
-const TOKEN_TTL = "15m";
-const TOKEN_TTL_MS = 15 * 60 * 1000;
+/** Sessões longas (jogo + alt-tab) precisam de JWT válido se o sinal reconectar. */
+const TOKEN_TTL = "24h";
+const TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
 
 export class LiveKitTokenService {
   constructor(private readonly rooms: RoomRepository) {}

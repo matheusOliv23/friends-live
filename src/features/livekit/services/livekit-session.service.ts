@@ -88,7 +88,7 @@ export class LiveKitSessionService {
       return this.connectInFlight;
     }
 
-    const run = this.performConnect(url, token, roomName);
+    const run = this.connectWithRetry(url, token, roomName);
     this.connectInFlight = run;
     this.connectInFlightRoom = roomName;
 
@@ -100,6 +100,34 @@ export class LiveKitSessionService {
         this.connectInFlightRoom = null;
       }
     }
+  }
+
+  private async connectWithRetry(
+    url: string,
+    token: string,
+    roomName: string,
+  ): Promise<void> {
+    const maxAttempts = 3;
+    let lastError: unknown;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      try {
+        await this.performConnect(url, token, roomName);
+        return;
+      } catch (error) {
+        lastError = error;
+        if (!isRetryableSignalError(error) || attempt === maxAttempts) {
+          const friendly = toFriendlyConnectionError(error);
+          this.setError(friendly);
+          throw new Error(friendly);
+        }
+        await wait(400 * attempt);
+      }
+    }
+
+    const friendly = toFriendlyConnectionError(lastError);
+    this.setError(friendly);
+    throw new Error(friendly);
   }
 
   private async performConnect(
@@ -118,6 +146,9 @@ export class LiveKitSessionService {
     const room = new Room({
       adaptiveStream: true,
       dynacast: true,
+      // Amigo troca para o jogo/outra janela — não pode derrubar a sala.
+      disconnectOnPageLeave: false,
+      stopLocalTrackOnUnpublish: false,
     });
     this.bindRoomEvents(room);
     this.room = room;
@@ -140,7 +171,6 @@ export class LiveKitSessionService {
     } catch (error) {
       if (generation !== this.generation) return;
       await this.teardownRoom();
-      this.setError(toFriendlyConnectionError(error));
       throw error;
     }
   }
@@ -442,8 +472,33 @@ function toFriendlyConnectionError(error: unknown): string {
   if (message.includes("expired") || message.includes("token")) {
     return "A autorização da transmissão expirou. Tente novamente.";
   }
+  if (
+    message.includes("websocket") ||
+    message.includes("signal connection") ||
+    message.includes("failed to fetch")
+  ) {
+    return "Não foi possível conectar ao servidor de transmissão. Desative VPN/proxy se estiver usando e tente de novo.";
+  }
   if (message.includes("room")) {
     return "Não foi possível entrar na sala de mídia.";
   }
   return "Falha ao conectar ao servidor de transmissão. Verifique a rede e tente novamente.";
+}
+
+function isRetryableSignalError(error: unknown): boolean {
+  const message =
+    error instanceof Error ? error.message.toLowerCase() : String(error);
+  return (
+    message.includes("websocket") ||
+    message.includes("signal connection") ||
+    message.includes("network") ||
+    message.includes("timeout") ||
+    message.includes("failed to fetch")
+  );
+}
+
+function wait(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }

@@ -1,5 +1,6 @@
 type NexusDesktopBridge = {
   goHome?: () => Promise<void>;
+  setPowerSave?: (enabled: boolean) => Promise<void>;
 };
 
 export function getNexusDesktop(): NexusDesktopBridge | null {

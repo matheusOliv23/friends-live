@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { app, BrowserWindow, ipcMain, shell } from "electron";
+import { app, BrowserWindow, ipcMain, powerSaveBlocker, shell } from "electron";
 import {
   getAppAudioFormat,
   stopAppAudioCapture,
@@ -45,6 +45,8 @@ let audioPrefs: AudioPrefs = {
   audioMode: "app-loopback",
   selectedDeviceId: "",
 };
+
+let powerSaveBlockerId: number | null = null;
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
@@ -259,4 +261,17 @@ ipcMain.handle("nexus:get-app-audio-format", () => getAppAudioFormat());
 
 ipcMain.handle("nexus:stop-app-audio", () => {
   stopAppAudioCapture();
+});
+
+ipcMain.handle("nexus:set-power-save", (_event, enabled: boolean) => {
+  if (enabled) {
+    if (powerSaveBlockerId === null) {
+      powerSaveBlockerId = powerSaveBlocker.start("prevent-app-suspension");
+    }
+    return;
+  }
+  if (powerSaveBlockerId !== null) {
+    powerSaveBlocker.stop(powerSaveBlockerId);
+    powerSaveBlockerId = null;
+  }
 });
