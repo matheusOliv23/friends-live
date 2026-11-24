@@ -100,8 +100,8 @@ export function StreamPlayer({
   );
 
   return (
-    <PlayerFrame ref={ref} live={status === "live" && !!stream}>
-      {status === "live" ? (
+    <PlayerFrame ref={ref} live={(status === "live" || !!stream) && !!stream}>
+      {status === "live" || stream ? (
         <LiveViewerContent
           stream={stream}
           muted={muted}

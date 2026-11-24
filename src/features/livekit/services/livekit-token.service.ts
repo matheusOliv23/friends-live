@@ -1,6 +1,5 @@
 import { randomBytes } from "node:crypto";
 import { AccessToken, type VideoGrant } from "livekit-server-sdk";
-import { TrackSource } from "@livekit/protocol";
 import { verifyToken } from "@/features/rooms/lib/tokens";
 import type { RoomRepository } from "@/features/rooms/repository/room-repository";
 import type { LiveKitTokenResponse } from "@/features/livekit/types";
@@ -53,10 +52,6 @@ export class LiveKitTokenService {
       canPublish: true,
       canSubscribe: true,
       canPublishData: false,
-      canPublishSources: [
-        TrackSource.SCREEN_SHARE,
-        TrackSource.SCREEN_SHARE_AUDIO,
-      ],
     };
 
     return this.signToken(config, {

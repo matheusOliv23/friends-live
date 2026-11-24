@@ -255,27 +255,28 @@ export function BroadcastStudio({ roomId }: BroadcastStudioProps) {
     setActionError(null);
     shareEpochRef.current += 1;
     const shouldGoLive = roomState.room?.status !== "live";
+    let didGoLive = false;
 
     try {
+      // Marca ao vivo cedo para o espectador sair de "aguardando".
+      if (shouldGoLive) {
+        await roomState.goLive();
+        didGoLive = true;
+      }
+
       const stream = await capture.start();
       await livekit.connectAsPublisher(roomId, stream, capture.quality);
-
-      if (shouldGoLive) {
-        try {
-          await roomState.goLive();
-        } catch (err) {
-          await livekit.disconnect();
-          capture.stop();
-          throw err;
-        }
-      }
     } catch (err) {
-      stoppingRef.current = true;
-      try {
+      await livekit.disconnect().catch(() => undefined);
+      if (capture.isActive) {
         capture.stop();
-        await livekit.disconnect().catch(() => undefined);
-      } finally {
-        stoppingRef.current = false;
+      }
+      if (didGoLive) {
+        try {
+          await roomState.end();
+        } catch {
+          // ignore
+        }
       }
 
       if (err instanceof RoomApiError) {

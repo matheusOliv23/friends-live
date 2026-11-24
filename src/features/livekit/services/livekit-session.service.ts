@@ -160,19 +160,25 @@ export class LiveKitSessionService {
           await this.teardownRoom();
         } else {
           room.removeAllListeners();
-          void room.disconnect(true);
+          void room.disconnect(false);
         }
-        return;
+        throw new Error("Conexão LiveKit cancelada.");
       }
       // O SDK registra `freeze` mesmo com disconnectOnPageLeave:false e
       // desconecta ao ir pro jogo (aba em segundo plano). Removemos isso.
       keepRoomAliveInBackground(room);
+      // Garante de novo no próximo tick (listener é registrado no fim do connect).
+      queueMicrotask(() => keepRoomAliveInBackground(room));
       this.participantCount = room.numParticipants;
       this.setStatus("connected");
       this.ensureRemoteMediaSubscriptions(room);
       this.refreshRemoteStream();
     } catch (error) {
-      if (generation !== this.generation) return;
+      if (generation !== this.generation) {
+        throw error instanceof Error
+          ? error
+          : new Error("Conexão LiveKit cancelada.");
+      }
       await this.teardownRoom();
       throw error;
     }
@@ -432,7 +438,8 @@ export class LiveKitSessionService {
     if (room) {
       room.removeAllListeners();
       try {
-        await room.disconnect(true);
+        // false = não para as MediaStreamTracks da captura (precisamos republicar).
+        await room.disconnect(false);
       } catch {
         // ignore
       }
@@ -468,17 +475,22 @@ export class LiveKitSessionService {
 
 /**
  * Workaround para livekit/client-sdk-js#1968: o SDK sempre escuta `freeze` e
- * chama disconnect() quando o Chrome/Edge hiberna a aba ao focar o jogo.
+ * chama disconnect(stopTracks=true) quando o Chrome/Edge hiberna a aba ao
+ * focar o jogo — isso ENCERRA a captura de tela e o espectador nunca vê nada.
  */
 function keepRoomAliveInBackground(room: LiveKitRoom): void {
   if (typeof window === "undefined") return;
-  const handler = (
-    room as unknown as { onPageLeave?: EventListenerOrEventListenerObject }
-  ).onPageLeave;
-  if (!handler) return;
-  window.removeEventListener("freeze", handler);
-  window.removeEventListener("pagehide", handler);
-  window.removeEventListener("beforeunload", handler);
+  const roomAny = room as unknown as {
+    onPageLeave?: EventListenerOrEventListenerObject;
+  };
+  const handler = roomAny.onPageLeave;
+  if (handler) {
+    window.removeEventListener("freeze", handler);
+    window.removeEventListener("pagehide", handler);
+    window.removeEventListener("beforeunload", handler);
+  }
+  // Se o SDK re-registrar o listener, vira no-op.
+  roomAny.onPageLeave = () => undefined;
 }
 
 function toFriendlyConnectionError(error: unknown): string {
