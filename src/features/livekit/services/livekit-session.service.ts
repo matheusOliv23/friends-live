@@ -164,6 +164,9 @@ export class LiveKitSessionService {
         }
         return;
       }
+      // O SDK registra `freeze` mesmo com disconnectOnPageLeave:false e
+      // desconecta ao ir pro jogo (aba em segundo plano). Removemos isso.
+      keepRoomAliveInBackground(room);
       this.participantCount = room.numParticipants;
       this.setStatus("connected");
       this.ensureRemoteMediaSubscriptions(room);
@@ -295,6 +298,7 @@ export class LiveKitSessionService {
     });
 
     room.on(RoomEvent.Reconnected, () => {
+      keepRoomAliveInBackground(room);
       this.setStatus("connected");
       this.ensureRemoteMediaSubscriptions(room);
       this.refreshRemoteStream();
@@ -462,6 +466,21 @@ export class LiveKitSessionService {
   }
 }
 
+/**
+ * Workaround para livekit/client-sdk-js#1968: o SDK sempre escuta `freeze` e
+ * chama disconnect() quando o Chrome/Edge hiberna a aba ao focar o jogo.
+ */
+function keepRoomAliveInBackground(room: LiveKitRoom): void {
+  if (typeof window === "undefined") return;
+  const handler = (
+    room as unknown as { onPageLeave?: EventListenerOrEventListenerObject }
+  ).onPageLeave;
+  if (!handler) return;
+  window.removeEventListener("freeze", handler);
+  window.removeEventListener("pagehide", handler);
+  window.removeEventListener("beforeunload", handler);
+}
+
 function toFriendlyConnectionError(error: unknown): string {
   const message =
     error instanceof Error ? error.message.toLowerCase() : "";
@@ -475,7 +494,8 @@ function toFriendlyConnectionError(error: unknown): string {
   if (
     message.includes("websocket") ||
     message.includes("signal connection") ||
-    message.includes("failed to fetch")
+    message.includes("failed to fetch") ||
+    message.includes("serverunreachable")
   ) {
     return "Não foi possível conectar ao servidor de transmissão. Desative VPN/proxy se estiver usando e tente de novo.";
   }
