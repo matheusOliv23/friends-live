@@ -135,20 +135,19 @@ export function useViewerSession(roomId: string): ViewerSession {
 
   const roomStatus = roomStatusToViewerStatus(roomState.room.status);
   const hasRemoteVideo = remoteStream !== null;
+  const mediaPending =
+    mediaStatus === "connecting" ||
+    mediaStatus === "reconnecting" ||
+    mediaStatus === "idle" ||
+    mediaStatus === "disconnected";
 
   // Se já chegou vídeo, mostra — mesmo se a sala ainda estiver "waiting"
   // (host publicou antes do goLive).
   let status: ViewerStatus = roomStatus;
   if (hasRemoteVideo) {
     status = "live";
-  } else if (roomStatus === "live" || mediaStatus === "connected") {
-    status =
-      mediaStatus === "connecting" ||
-      mediaStatus === "reconnecting" ||
-      mediaStatus === "idle" ||
-      mediaStatus === "disconnected"
-        ? "connecting"
-        : "live";
+  } else if (roomStatus === "live") {
+    status = mediaPending ? "connecting" : "live";
   } else if (
     roomStatus === "waiting" &&
     (mediaStatus === "connecting" || mediaStatus === "connected")
